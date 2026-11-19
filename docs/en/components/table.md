@@ -84,7 +84,9 @@ const loading = ref(false)
 2. **Default cells** (no column `slot`, no table-level `cell` slot): ellipsis + tooltip when `showOverflowTooltip` is true (default). Set `false` to opt out of the tooltip only.
 3. **Custom slots**: the library does not auto-ellipsis; wrap content with **`PtTableEllipsisCell`** (same pattern as a host-local ellipsis helper).
 4. Do **not** fix collisions with global `.pt-table td { overflow: visible }` or display overrides—fix widths and in-cell overflow.
-5. **`PtInput` has no `loading` prop**; use the `suffix` slot for async spinners.
+5. **Keyboard (0.1.1+)**: only **actually truncated** default cells join the tab order and show the full text on focus (`Escape` dismisses). Non-truncated cells are not tab stops. Sortable headers accept **Enter / Space** with `aria-sort`.
+6. **Escape hatch**: `showOverflowTooltip: false` on a column or on `PtTableEllipsisCell` keeps ellipsis without the overflow tooltip.
+7. **`PtInput` has no `loading` prop**; use the `suffix` slot for async spinners.
 
 ```vue
 <pt-table :columns="columns" :data="rows">

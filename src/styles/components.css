@@ -715,6 +715,15 @@
 .pt-table thead th { position: sticky; top: 0; z-index: 1; }
 .pt-table__th { display: inline-flex; align-items: center; gap: 4px; }
 .pt-table th.is-sortable { cursor: pointer; user-select: none; }
+.pt-table th.is-sortable:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 var(--pt-focus-ring-width) var(--pt-color-focus-ring);
+}
+.pt-table__cell--overflow-focusable:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 var(--pt-focus-ring-width) var(--pt-color-focus-ring);
+  border-radius: 2px;
+}
 .pt-table__sort {
   display: inline-flex;
   flex-direction: column;

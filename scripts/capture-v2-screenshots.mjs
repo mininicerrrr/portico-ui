@@ -208,12 +208,47 @@ const shots = [
     file: 'live-v2-table-states.png',
     anchor: '#v2-table-states',
     clipSelector: '#v2-table-states .pt-table__table',
-    setup: null,
-    state: '820px populated table; viewport clip on .pt-table__table (820px), not 624px DemoBox',
+    setup: async (page) => {
+      await page.evaluate(() => {
+        const demo = document.querySelector('#v2-table-states')
+        if (!demo) return
+        demo.style.overflow = 'visible'
+        demo.style.width = '860px'
+        demo.style.maxWidth = 'none'
+        const body = demo.querySelector('.pt-demo__body')
+        if (body) {
+          body.style.overflow = 'visible'
+          body.style.maxWidth = 'none'
+        }
+        const shell = demo.querySelector('.v2-shot-820')
+        if (shell) {
+          shell.style.overflow = 'visible'
+          shell.style.width = '820px'
+        }
+        const wrap = demo.querySelector('.pt-table__wrap')
+        if (wrap) wrap.style.overflow = 'visible'
+      })
+    },
+    state: '820px five-column populated table; ancestors unclipped for capture; clip = table paint bounds',
     viewportClip: true,
     verify: async (page) => {
-      const box = await page.locator('#v2-table-states .pt-table__table').boundingBox()
-      if (!box || box.width < 800) throw new Error(`820px table clip too narrow: ${box?.width}`)
+      const bounds = await page.evaluate(() => {
+        const table = document.querySelector('#v2-table-states .pt-table__table')
+        const lastTh = document.querySelector('#v2-table-states th:last-child')
+        const tr = table?.getBoundingClientRect()
+        const lr = lastTh?.getBoundingClientRect()
+        return {
+          tableWidth: tr?.width ?? 0,
+          lastRight: lr?.right ?? 0,
+          tableRight: tr?.right ?? 0,
+          lastHeader: lastTh?.textContent?.trim()
+        }
+      })
+      if (bounds.tableWidth < 800) throw new Error(`Table too narrow: ${bounds.tableWidth}`)
+      if (!bounds.lastHeader?.includes('更新时间')) throw new Error(`Last header missing: ${bounds.lastHeader}`)
+      if (bounds.lastRight < bounds.tableRight - 8) {
+        throw new Error(`Last column clipped: lastRight=${bounds.lastRight} tableRight=${bounds.tableRight}`)
+      }
     },
     metrics: ['table']
   },

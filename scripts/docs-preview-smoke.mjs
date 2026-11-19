@@ -75,10 +75,27 @@ async function main() {
       tableWidth: getComputedStyle(document.querySelector('.pt-table__table')).width,
       thBorderLeft: getComputedStyle(document.querySelector('.pt-table__table th')).borderLeftWidth
     }))
+    const a11y = await page.evaluate(() => {
+      const sortable = document.querySelector('.pt-table th.is-sortable')
+      const focusableCell = document.querySelector('.pt-table__cell--overflow-focusable')
+      return {
+        sortableHeaderTabIndex: sortable?.getAttribute('tabindex'),
+        hasOverflowFocusableCell: Boolean(focusableCell)
+      }
+    })
     await browser.close()
-    const allOk = results.every((r) => r.ok) && tableLayout.tableDisplay === 'table'
-    console.log(JSON.stringify({ ok: allOk, results, tableLayout }, null, 2))
-    if (!allOk || tableLayout.tableDisplay !== 'table') process.exit(1)
+    const staticServerOk = results.every((r) => r.ok) && tableLayout.tableDisplay === 'table'
+    const payload = {
+      ok: staticServerOk,
+      runner: 'static-docs-server + Playwright',
+      notVitepressDefaultPreview: true,
+      vitepressDefaultLimitation: 'Run npm run docs:preview-vitepress-default for default vitepress preview base-path check',
+      results,
+      tableLayout,
+      a11ySample: a11y
+    }
+    console.log(JSON.stringify(payload, null, 2))
+    if (!staticServerOk) process.exit(1)
   } finally {
     preview.kill('SIGTERM')
   }

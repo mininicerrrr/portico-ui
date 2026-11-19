@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import PtTooltip from '../tooltip/Tooltip.vue'
+import TableOverflowCell from './TableOverflowCell.vue'
 import type { TooltipEffect } from '../tooltip/Tooltip.vue'
 import type { PtPlacement } from '../../utils/placement'
 
 export interface TableEllipsisCellProps {
   /** Cell text; also used as tooltip content when tooltip is enabled. */
   content?: string | number | null
-  /** Show tooltip with full content on hover. Default true. */
+  /** Show tooltip with full content when truncated. Default true; false is the escape hatch. */
   showOverflowTooltip?: boolean
   placement?: PtPlacement
   effect?: TooltipEffect
@@ -27,13 +27,12 @@ const label = () => {
 </script>
 
 <template>
-  <pt-tooltip
-    v-if="showOverflowTooltip && label()"
-    :content="label()"
+  <table-overflow-cell
+    :text="label()"
     :placement="placement"
     :effect="effect"
+    :enable-tooltip="showOverflowTooltip"
   >
-    <span class="pt-table__cell"><slot>{{ label() }}</slot></span>
-  </pt-tooltip>
-  <span v-else class="pt-table__cell"><slot>{{ label() }}</slot></span>
+    <template #default>{{ label() }}</template>
+  </table-overflow-cell>
 </template>

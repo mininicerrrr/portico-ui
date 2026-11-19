@@ -3,7 +3,7 @@ import { computed, ref, useSlots, watch } from 'vue'
 import { useLocale } from '../../locale'
 import PtSpinner from '../icons/PtSpinner.vue'
 import PtIcon from '../icons/PtIcon.vue'
-import PtTooltip from '../tooltip/Tooltip.vue'
+import TableOverflowCell from './TableOverflowCell.vue'
 import { iconChevron, iconChevronUp } from '../icons/icons'
 
 export type TableSortOrder = 'asc' | 'desc' | null
@@ -167,6 +167,22 @@ function toggleSort(column: TableColumn) {
   emit('sort-change', { prop: column.prop, order: sortOrder.value })
 }
 
+function onSortKeydown(column: TableColumn, event: KeyboardEvent) {
+  if (!column.sortable) return
+  if (event.key !== 'Enter' && event.key !== ' ') return
+  event.preventDefault()
+  toggleSort(column)
+}
+
+function headerTabIndex(column: TableColumn) {
+  return column.sortable ? 0 : undefined
+}
+
+function headerAriaSort(column: TableColumn) {
+  if (!column.sortable || sortProp.value !== column.prop || !sortOrder.value) return undefined
+  return sortOrder.value === 'asc' ? 'ascending' : 'descending'
+}
+
 function onRowClick(row: Record<string, unknown>, index: number) {
   if (!props.highlightCurrentRow) return
   const key = rowId(row, index)
@@ -211,9 +227,11 @@ watch(
               :key="column.prop"
               scope="col"
               :style="widthStyle(column)"
+              :tabindex="headerTabIndex(column)"
               :class="{ 'is-sortable': column.sortable, [`is-sort-${sortOrder}`]: sortProp === column.prop && sortOrder }"
-              :aria-sort="sortProp === column.prop ? (sortOrder === 'asc' ? 'ascending' : sortOrder === 'desc' ? 'descending' : undefined) : undefined"
-              @click="toggleSort(column)"
+              :aria-sort="headerAriaSort(column)"
+              @click="column.sortable ? toggleSort(column) : undefined"
+              @keydown="onSortKeydown(column, $event)"
             >
               <span class="pt-table__th">
                 {{ column.label }}
@@ -253,14 +271,11 @@ watch(
             <td v-for="column in columns" :key="column.prop" :style="widthStyle(column)">
               <slot v-if="hasSlot(column.slot)" :name="column.slot" :row="entry.row" :column="column" :index="entry.index" :value="entry.row[column.prop]" />
               <slot v-else-if="$slots.cell" name="cell" :row="entry.row" :column="column" :index="entry.index" :value="entry.row[column.prop]" />
-              <pt-tooltip
+              <table-overflow-cell
                 v-else-if="overflowTooltip(column)"
-                :content="cellText(entry.row, column, entry.index)"
+                :text="cellText(entry.row, column, entry.index)"
                 placement="top"
-                :disabled="!cellText(entry.row, column, entry.index)"
-              >
-                <span class="pt-table__cell">{{ cellText(entry.row, column, entry.index) }}</span>
-              </pt-tooltip>
+              />
               <span v-else class="pt-table__cell">{{ cellText(entry.row, column, entry.index) }}</span>
             </td>
           </tr>

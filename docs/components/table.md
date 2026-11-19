@@ -86,7 +86,9 @@ const loading = ref(false)
 2. **默认单元格**（无 `slot` / 无全局 `cell` 插槽）：自动渲染 `.pt-table__cell`；`showOverflowTooltip` 默认为 `true`（向后兼容：行为相对 v1 为「省略 + Tooltip」，可用 `false` 关闭 Tooltip）。
 3. **自定义列 `slot` / 通用 `cell` 插槽**：库**不会**自动省略。请在插槽内使用 **`PtTableEllipsisCell`**（或自行套用相同结构的 `.pt-table__cell` + `PtTooltip`）。
 4. **禁止**用应用或文档全局 CSS 覆盖 `.pt-table td { overflow: visible }`、改 `display` 等方式“修”叠字——应修正列宽与单元格内溢出。
-5. **`PtInput.loading` 不存在**；输入框异步态请用 `suffix` 插槽（参见 [Visual v2 验证](./visual-v2#v2-input-async)）。
+5. **键盘（0.1.1+）**：仅当文本**确实被截断**时，默认溢出单元格才可 Tab 聚焦并显示 Tooltip（`Escape` 关闭）。未截断单元格**不会**进入 Tab 序。可排序列表头支持 **Enter / Space**，并暴露 `aria-sort`。
+6. **逃逸**：列上 `showOverflowTooltip: false` 或 `PtTableEllipsisCell` 的同名 prop 可关闭溢出 Tooltip（仍省略）。
+7. **`PtInput.loading` 不存在**；输入框异步态请用 `suffix` 插槽（参见 [Visual v2 验证](./visual-v2#v2-input-async)）。
 
 ```vue
 <pt-table :columns="columns" :data="rows" style="width: 100%">

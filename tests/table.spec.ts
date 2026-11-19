@@ -17,7 +17,7 @@ describe('PtTable', () => {
       }
     })
     expect(wrapper.find('.pt-table__cell').exists()).toBe(true)
-    expect(wrapper.findComponent({ name: 'PtTooltip' }).exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'PtTableOverflowCell' }).exists()).toBe(true)
   })
 
   it('omits tooltip when showOverflowTooltip is false', () => {

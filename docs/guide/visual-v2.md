@@ -275,4 +275,15 @@ const asyncInput = ref('异步校验中')
 #v2-dark .pt-table td {
   padding-inline: 8px !important;
 }
+/* Wide-table validation fixture: no ancestor clip (capture + user review) */
+#v2-table-states.pt-demo,
+#v2-table-states .pt-demo__body,
+#v2-table-states .pt-table__wrap {
+  overflow: visible !important;
+  max-width: none;
+}
+#v2-table-states.pt-demo {
+  width: 860px;
+  max-width: none;
+}
 </style>

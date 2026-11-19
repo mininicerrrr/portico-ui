@@ -1,6 +1,6 @@
 # Radio
 
-Pick a single value from a group. Use `value` (or the alias `label`) for the option value.
+Pick a single value from a group. Use `value` (or the alias `label`) for the option value. The radio stays a circle (16×16, 2px border, 8px inner dot), not a pill button.
 
 <script setup>
 import { ref } from 'vue'

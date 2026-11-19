@@ -1,6 +1,6 @@
 # Portico UI
 
-A compact Vue 3 component library for practical admin and form interfaces. Components are typed, themeable with CSS variables, and documented with a local VitePress site.
+A compact Vue 3 component library for practical admin and form interfaces, in a lintel / threshold visual language (rails, stone paper, ink type). Components are typed, themeable with CSS variables, and documented with a local VitePress site.
 
 English | [简体中文](./README.zh-CN.md)
 
@@ -8,7 +8,7 @@ English | [简体中文](./README.zh-CN.md)
 
 - Vue 3 + Vite + TypeScript, built in library mode
 - Plugin install (`app.use(PorticoUI)`) or on-demand imports
-- CSS variable theme: primary, success, warning, danger, info, radius, typography, and spacing
+- CSS variable theme: primary, lintels, stone paper, semantic colors, 2px/4px radii, typography, and spacing
 - Light theme by default, with a complete dark theme (`html.pt-dark` or `[data-pt-theme="dark"]`)
 - Prefix: `Pt` (`PtButton`, `PtInput`, …)
 - Package name: `portico-ui`

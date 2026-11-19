@@ -83,5 +83,5 @@ Call these on a `ref` to `PtForm`.
 
 ## Success state
 
-`PtFormItem` accepts an optional `validateStatus` (`'error' | 'success' | ''`). The success ring appears only when `validateStatus="success"`; a passing validation does not enable it automatically. The default label width uses `--pt-form-label-width` (96px).
+`PtFormItem` accepts an optional `validateStatus` (`'error' | 'success' | ''`). The success border appears only when `validateStatus="success"` (a 2px success border, with no glow or left rail); a passing validation does not enable it automatically. Error uses a 2px danger border plus a 3px left rail. The default label width uses `--pt-form-label-width` (96px), and labels are Medium weight.
 

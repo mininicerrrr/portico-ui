@@ -110,5 +110,5 @@ function onReset() {
 
 ## 成功状态
 
-`PtFormItem` 增加了可选的 `validateStatus`（`'error' | 'success' | ''`）。成功环只在 `validateStatus="success"` 时出现，校验通过不会自动加上成功态。默认标签宽度使用 `--pt-form-label-width`（96px）。
+`PtFormItem` 增加了可选的 `validateStatus`（`'error' | 'success' | ''`）。成功描边只在 `validateStatus="success"` 时出现（2px 成功色边，没有光晕或左轨），校验通过不会自动加上成功态。错误态是 2px 危险描边加 3px 左轨。默认标签宽度使用 `--pt-form-label-width`（96px），标签为 Medium 字重。
 

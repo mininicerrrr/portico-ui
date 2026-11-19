@@ -1,6 +1,6 @@
 # Select 选择器
 
-基础单选下拉。支持选项数组、`PtOption` 插槽、禁用和 `v-model`。可用键盘打开列表：方向键移动高亮，Enter / Space 确认，`Esc` 关闭。
+基础单选下拉。支持选项数组、`PtOption` 插槽、禁用和 `v-model`。可用键盘打开列表：方向键移动高亮，Enter / Space 确认，`Esc` 关闭。触发器为 2px 圆角与 2px 描边；展开时是 2px 主色边，没有柔和光晕。下拉面板圆角 4px；选中项为 3px 主色左轨加主色浅底。
 
 <script setup>
 import { ref } from 'vue'

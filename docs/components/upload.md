@@ -1,6 +1,6 @@
 # Upload 上传
 
-自定义 `httpRequest` 是主要上传路径，`action` 可选。支持按钮、列表与拖拽（`drag`）三种形态。
+自定义 `httpRequest` 是主要上传路径，`action` 可选。支持按钮、列表与拖拽（`drag`）三种形态。拖拽区为 2px 虚线描边（更偏墨色的 `--pt-border-color`）和 4px 圆角。
 
 ## 基础用法
 

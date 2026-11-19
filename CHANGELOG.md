@@ -4,6 +4,8 @@
 
 ### Compatibility
 
+- **Vue 3.4 runtime**: remove stray `useId` import/call from PtTooltip so ESM bundle does not require Vue 3.5+ `useId` at load/mount time.
+
 - **Node `require('portico-ui')`**: `exports.require` now resolves to `dist/portico-ui.cjs` (`.cjs` extension). With `"type": "module"`, `.js` UMD was interpreted as ESM under Node and `require` returned an empty module (`undefined.defineComponent` / missing exports).
 - **TypeScript consumers**: published `dist/index.d.ts` is generated against **`vue-dts-baseline` (Vue 3.4.38)** via `tsconfig.dts.json`, then `patch-published-dts.mjs` normalizes imports to `vue`. No `declare module 'vue'` / index signature ships in the tarball.
 - `unpkg` points at the browser UMD build; `main` is the CJS entry for tooling that reads `main`.
@@ -16,7 +18,7 @@
 - **Table** default overflow cells (`showOverflowTooltip` not `false`): full text is available on **keyboard focus** (Tab) when the cell is actually truncated, with **Escape** to dismiss the tooltip. Non-truncated cells do not receive a Tab stop.
 - **PtTableEllipsisCell**: same keyboard path; set `showOverflowTooltip={false}` to disable overflow tooltip behavior (escape hatch).
 - **Table** sortable column headers: **Enter** / **Space** toggle sort (including `sortable: 'custom'` emit path); `aria-sort` and visible `:focus-visible` ring on sortable headers only.
-- **PtTooltip**: stable panel `id` via Vue `useId()`, `aria-describedby` on the trigger while open; optional `triggers` array (`hover` / `focus` / `click`). Legacy `trigger` prop remains supported.
+- **PtTooltip**: stable panel `id` via monotonic `pt-tooltip-panel-*` sequence (Vue 3.4-safe; no `useId` runtime dependency); `aria-describedby` on the trigger while open; optional `triggers` array (`hover` / `focus` / `click`). Legacy `trigger` prop remains supported.
 
 ### Docs / CI
 

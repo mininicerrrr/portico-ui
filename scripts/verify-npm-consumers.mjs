@@ -91,6 +91,15 @@ function assertPublishedDts(dtsPath) {
   }
 }
 
+function assertEsBundleVue34Safe(repoRoot) {
+  const esPath = join(repoRoot, 'dist/portico-ui.es.js')
+  const head = readFileSync(esPath, 'utf8').split('\n')[0] ?? ''
+  if (/\buseId\b/.test(head)) {
+    throw new Error('dist/portico-ui.es.js must not import useId (Vue 3.5-only breaks ^3.4 peers)')
+  }
+  return { esPath, importLineOk: true }
+}
+
 function assertTarballContainsCjs(tgzPath) {
   const entries = sh(`tar -tzf ${JSON.stringify(tgzPath)}`)
     .split('\n')
@@ -149,6 +158,7 @@ async function main() {
   shInherit('npm run build', { cwd: repoRoot })
   const publishedDts = join(repoRoot, 'dist/index.d.ts')
   const dtsChecks = assertPublishedDts(publishedDts)
+  const esChecks = assertEsBundleVue34Safe(repoRoot)
 
   await mkdir(packDest, { recursive: true })
   const tgzName = sh(`npm pack --pack-destination ${packDest}`, { cwd: repoRoot })
@@ -173,6 +183,11 @@ async function main() {
       ok: true,
       ...tarballChecks,
       tarballSha256: tarballSha
+    },
+    {
+      name: 'es-bundle-no-vue-useId-import',
+      ok: true,
+      ...esChecks
     }
   ]
 
@@ -202,6 +217,19 @@ console.log('ok', process.version);
       return { node: nodeVersion(), vue: '3.5.45', command: 'node index.cjs' }
     })
   )
+
+  for (const vueVer of ['3.4.0', '3.4.38']) {
+    matrix.push(
+      await runFixture(`esm-import-vue-${vueVer.replace(/\./g, '-')}`, async () => {
+        const out = sh(`node scripts/consumer-runtime-vue34.mjs ${vueVer} ${JSON.stringify(tgzPath)}`, {
+          cwd: repoRoot
+        }).trim()
+        const parsed = JSON.parse(out)
+        if (!parsed.ok) throw new Error(parsed.error || 'runtime mount failed')
+        return { vue: vueVer, packInstall: true, checks: parsed.checks }
+      })
+    )
+  }
 
   matrix.push(
     await runFixture('esm-import', async (dir) => {

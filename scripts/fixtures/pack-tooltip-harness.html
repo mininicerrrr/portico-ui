@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Pack tooltip harness (Vue 3.4)</title>
+    <link rel="stylesheet" href="/dist/style.css" />
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; }
+      #app { padding: 32px; }
+      button:focus-visible { outline: 3px solid #3473ce; outline-offset: 2px; }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "vue": "https://cdn.jsdelivr.net/npm/vue@3.4.38/dist/vue.runtime.esm-browser.prod.js"
+        }
+      }
+    </script>
+    <script type="module">
+      import { createApp, h, defineComponent, nextTick } from 'https://cdn.jsdelivr.net/npm/vue@3.4.38/dist/vue.runtime.esm-browser.prod.js'
+      import { PtTooltip } from '/dist/portico-ui.es.js'
+
+      const App = defineComponent({
+        setup() {
+          return () =>
+            h('div', [
+              h(
+                PtTooltip,
+                { content: 'Long tooltip copy for evidence — brand guidelines overflow text', triggers: ['focus'], showAfter: 0, hideAfter: 0 },
+                { default: () => h('button', { id: 'ev-tip-a', type: 'button' }, 'Focus A') }
+              ),
+              h('span', { style: 'display:inline-block;width:32px' }),
+              h(
+                PtTooltip,
+                { content: 'Second instance', triggers: ['focus'], showAfter: 0 },
+                { default: () => h('button', { id: 'ev-tip-b', type: 'button' }, 'Focus B') }
+              )
+            ])
+        }
+      })
+
+      createApp(App).mount('#app')
+      await nextTick()
+      const btn = document.getElementById('ev-tip-a')
+      btn?.focus()
+      btn?.dispatchEvent(new FocusEvent('focusin', { bubbles: true }))
+    </script>
+  </body>
+</html>

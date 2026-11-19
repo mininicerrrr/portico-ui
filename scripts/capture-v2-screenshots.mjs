@@ -676,12 +676,25 @@ async function main() {
   const mergedByFile = new Map((prev.screenshots || []).map((s) => [s.file, s]))
   for (const e of evidence) mergedByFile.set(e.file, e)
   const inheritSha = prev.manifestCommitSha ?? prev.commitSha ?? null
+  const cumulativeSet = new Set([
+    ...CORRECTIVE_RUN_REPLACED,
+    ...(prev.replacedFilesCumulative || prev.replacedFiles || [])
+  ])
   for (const [file, entry] of mergedByFile) {
     if (replacedFilesThisRun.includes(file)) continue
+    if (cumulativeSet.has(file)) {
+      entry.provenance = 'corrective-run'
+      entry.captureNote =
+        'PNG from designer corrective capture session; not re-shot at this manifest write (see replacedFilesCumulative)'
+      if (!entry.captureCommitSha) {
+        entry.captureCommitSha = prev.implementationSourceCommitSha ?? 'f84d4bd76e76daa7ead98d4b7a5fe0b442fecc78'
+      }
+      continue
+    }
     entry.provenance = 'inherited'
-    entry.inheritedFromManifestCommitSha = inheritSha
+    entry.inheritedFromManifestCommitSha = inheritSha ?? 'b1901ae3e2afc547a054151379b603be92d40fb5'
     if (!entry.captureNote) {
-      entry.captureNote = 'PNG retained from earlier capture run; not re-shot this manifest write'
+      entry.captureNote = 'PNG retained from original b1901ae-era capture; not part of corrective re-capture set'
     }
   }
   const screenshots = SHOT_ORDER.filter((f) => mergedByFile.has(f)).map((f) => mergedByFile.get(f))
@@ -689,10 +702,22 @@ async function main() {
     ...new Set([...(prev.replacedFilesCumulative || prev.replacedFiles || []), ...CORRECTIVE_RUN_REPLACED, ...replacedFilesThisRun])
   ]
   const manifestWrittenAt = new Date().toISOString()
+  let implementationSourceCommitSha = git.commitSha
+  try {
+    implementationSourceCommitSha = execSync(
+      'git log -1 --format=%H -- src docs package.json :!scripts',
+      { cwd: repoRoot, encoding: 'utf8' }
+    ).trim()
+  } catch {
+    implementationSourceCommitSha = prev.implementationSourceCommitSha ?? git.commitSha
+  }
   const manifest = {
     ...prev,
     ...git,
     manifestCommitSha: git.commitSha,
+    implementationSourceCommitSha,
+    tarballBuildNote:
+      'npm pack reflects library src/docs at implementationSourceCommitSha; chore capture commits may advance manifestCommitSha only',
     buildId,
     capturedAt: manifestWrittenAt,
     partialCapture: Boolean(only?.length),

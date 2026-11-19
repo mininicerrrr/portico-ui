@@ -109,7 +109,7 @@ const shots = [
     file: 'live-v2-inputs.png',
     anchor: '#v2-inputs',
     setup: async (page) => {
-      await page.locator('#v2-input-focus-field input, #v2-input-focus-field .pt-input__inner').first().focus()
+      await page.locator('#v2-input-focus-field').focus()
     },
     state: 'Placeholder, focused filled input, FormItem error with helper text',
     metrics: ['input', 'errorInput', 'formMessage', 'focusInput']
@@ -340,7 +340,8 @@ async function measure(page, anchor, keys) {
         }
       }
       if (metricKeys.includes('focusInput')) {
-        const inp = pick('#v2-input-focus-field') || pick('.pt-input.is-focus')
+        const inner = document.getElementById('v2-input-focus-field')
+        const inp = inner?.closest?.('.pt-input') || pick('.pt-input.is-focus')
         out.focusInput = {
           borderColor: cs(inp)?.borderColor,
           boxShadow: cs(inp)?.boxShadow,

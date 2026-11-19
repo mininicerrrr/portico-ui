@@ -1,7 +1,8 @@
 /**
- * vue-tsc / rollup dts emits component types parameterized by `GlobalComponents`.
- * Vue 3.5+ expects `GlobalComponents` to satisfy `Record<string, Component>`.
- * Augment before declaration emit so consumer strict `tsc` does not TS2344.
+ * Build-time only (not copied into published dist/index.d.ts).
+ * vue-tsc / rollup dts emit component types parameterized by `GlobalComponents`.
+ * `scripts/patch-published-dts.mjs` rewrites rolled imports to local Record<> aliases
+ * and strips any emitted `declare module 'vue'` — consumers must not receive namespace widening.
  */
 import type { Component } from 'vue'
 

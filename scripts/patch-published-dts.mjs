@@ -1,5 +1,8 @@
 #!/usr/bin/env node
-/** Post-process rolled dist/index.d.ts for Vue 3.5+ strict consumer TS (TS2344). */
+/**
+ * Post-process rolled dist/index.d.ts for Vue 3.5+ strict consumer TS (TS2344).
+ * Published types must not `declare module 'vue'` or ship index-signature widening.
+ */
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
@@ -15,7 +18,4 @@ src = src.replace(
   'type GlobalDirectives = Record<string, import("vue").Directive>;\n'
 )
 src = src.replace(/\ndeclare module 'vue' \{[\s\S]*?export interface GlobalComponents[\s\S]*?\}\n\}/, '')
-writeFileSync(
-  dtsPath,
-  `${src.trimEnd()}\n\ndeclare module 'vue' {\n  export interface GlobalComponents {\n    [name: string]: import('vue').Component\n  }\n}\n`
-)
+writeFileSync(dtsPath, `${src.trimEnd()}\n`)

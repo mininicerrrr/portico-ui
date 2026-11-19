@@ -5,8 +5,9 @@
 ### Compatibility
 
 - **Node `require('portico-ui')`**: `exports.require` now resolves to `dist/portico-ui.cjs` (`.cjs` extension). With `"type": "module"`, `.js` UMD was interpreted as ESM under Node and `require` returned an empty module (`undefined.defineComponent` / missing exports).
-- **TypeScript consumers**: augment `vue` `GlobalComponents` with an index signature before `dts` emit so strict `vue-tsc` / `tsc` (no `skipLibCheck`) does not TS2344 on published `dist/index.d.ts`.
+- **TypeScript consumers**: `patch-published-dts.mjs` replaces rolled `GlobalComponents` / `GlobalDirectives` imports with local `Record<>` type aliases in **published** `dist/index.d.ts` only. No `declare module 'vue'` (and no index signature) ships in the tarball — consumer `vue` namespace is not widened by the package.
 - `unpkg` points at the browser UMD build; `main` is the CJS entry for tooling that reads `main`.
+- **Vue peer range:** `^3.4.0` runtime (CJS/ESM checked at 3.4.38). Published `dist/index.d.ts` strict checks (TS 5.9.3, `skipLibCheck: false`) run against **Vue 3.5.22 / 3.5.45** (matches library build tooling).
 
 ## 0.1.1
 

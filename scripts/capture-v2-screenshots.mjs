@@ -206,12 +206,13 @@ const shots = [
   },
   {
     file: 'live-v2-table-states.png',
-    anchor: '#v2-table-states .v2-shot-820',
+    anchor: '#v2-table-states',
+    clipSelector: '#v2-table-states .pt-table__table',
     setup: null,
-    state: '820px populated wide table with members (clip .v2-shot-820, not 624px DemoBox)',
+    state: '820px populated table; viewport clip on .pt-table__table (820px), not 624px DemoBox',
     viewportClip: true,
     verify: async (page) => {
-      const box = await page.locator('#v2-table-states .v2-shot-820').boundingBox()
+      const box = await page.locator('#v2-table-states .pt-table__table').boundingBox()
       if (!box || box.width < 800) throw new Error(`820px table clip too narrow: ${box?.width}`)
     },
     metrics: ['table']
@@ -624,8 +625,9 @@ async function main() {
     let captureFraming = 'element: anchor only'
     let unionMeta = null
   if (shot.viewportClip) {
-      const box = await loc.boundingBox()
-      if (!box) throw new Error(`missing bbox for ${shot.anchor}`)
+      const clipLoc = shot.clipSelector ? page.locator(shot.clipSelector) : loc
+      const box = await clipLoc.boundingBox()
+      if (!box) throw new Error(`missing bbox for ${shot.clipSelector || shot.anchor}`)
       await page.screenshot({
         path: filePath,
         clip: { x: box.x, y: box.y, width: box.width, height: box.height }

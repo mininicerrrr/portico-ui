@@ -1,6 +1,6 @@
 # Table 表格
 
-用于展示行列数据。传入 `columns` 与 `data`，在没有数据时显示空状态。表头为 Medium 字重与石色底（`--pt-bg-soft`）。当前行（`highlight-current-row`）为主色浅底加 3px 主色左轨。
+用于展示行列数据。传入 `columns` 与 `data`，在没有数据时显示空状态。v2：表头 Medium + `--pt-bg-soft`，行间 1px 分隔，无竖向网格。行悬停 `--pt-bg-row-hover`，当前行/选中 `--pt-bg-row-selected`（无左侧轨）。加载保留表头与列宽，浅色遮罩非整页阻塞。
 
 <script setup>
 import { ref } from 'vue'

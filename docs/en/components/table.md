@@ -1,6 +1,6 @@
 # Table
 
-Renders `columns` and `data`, and shows an empty state when there are no rows. Column slots receive `{ row, column, index, value }`. Headers use Medium weight and a stone fill (`--pt-bg-soft`). The current row (`highlight-current-row`) uses a primary-soft fill and a 3px left primary rail.
+Renders `columns` and `data`, and shows an empty state when there are no rows. Column slots receive `{ row, column, index, value }`. v2: Medium headers on `--pt-bg-soft`, 1px row separators, no vertical grid. Hover uses `--pt-bg-row-hover`; current/selected rows use `--pt-bg-row-selected` without a left rail. Loading keeps headers/column widths with a light overlay, not a full-page blocker.
 
 <script setup>
 import { ref } from 'vue'

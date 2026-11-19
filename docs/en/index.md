@@ -18,7 +18,7 @@ features:
   - title: Practical controls
     details: Buttons, inputs, selects, switches, validated forms, dialogs, and other pieces used in admin screens.
   - title: Token-based theming
-    details: "Lintel / threshold language: 2px control radii, stone paper, and ink type. Customize primary, lintel, and semantic tokens; light and dark skins are complete."
+    details: "Clear rhythm (v2): 1px borders, 6px control radius, Noto Sans SC 400/500, action blue tokens; complete light and dark skins."
   - title: Maintainable packaging
     details: Vue 3, Vite, and TypeScript in library mode, with typings, unit tests, and a documentation site.
 ---

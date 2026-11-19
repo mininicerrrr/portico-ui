@@ -19,6 +19,7 @@ const zhSidebar: DefaultTheme.Sidebar = {
         { text: '安装', link: '/guide/installation' },
         { text: '快速开始', link: '/guide/quickstart' },
         { text: '设计变量', link: '/guide/theme' },
+        { text: 'Visual v2 验证', link: '/guide/visual-v2' },
         { text: '国际化', link: '/guide/i18n' }
       ]
     },
@@ -69,6 +70,7 @@ const enSidebar: DefaultTheme.Sidebar = {
         { text: 'Installation', link: '/en/guide/installation' },
         { text: 'Quick start', link: '/en/guide/quickstart' },
         { text: 'Design tokens', link: '/en/guide/theme' },
+        { text: 'Visual v2 verification', link: '/en/guide/visual-v2' },
         { text: 'Internationalization', link: '/en/guide/i18n' }
       ]
     },

@@ -719,10 +719,18 @@
   outline: none;
   box-shadow: inset 0 0 0 var(--pt-focus-ring-width) var(--pt-color-focus-ring);
 }
+.pt-table td:focus-within:has(.pt-table__cell--overflow-focusable) {
+  overflow: visible;
+  position: relative;
+  z-index: 2;
+}
+.pt-table td:focus-within:has(.pt-table__cell--overflow-focusable:focus-visible) {
+  outline: var(--pt-focus-ring-width) solid var(--pt-color-primary);
+  outline-offset: -2px;
+  border-radius: 2px;
+}
 .pt-table__cell--overflow-focusable:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 var(--pt-focus-ring-width) var(--pt-color-focus-ring);
-  border-radius: 2px;
 }
 .pt-table__sort {
   display: inline-flex;

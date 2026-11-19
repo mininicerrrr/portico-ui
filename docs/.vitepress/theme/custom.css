@@ -121,6 +121,18 @@ body,
   overflow: hidden;
   max-width: 0;
 }
+.vp-doc .pt-demo .pt-table__table td:focus-within:has(.pt-table__cell--overflow-focusable) {
+  overflow: visible !important;
+  z-index: 2;
+}
+.vp-doc .pt-demo .pt-table__table td:focus-within:has(.pt-table__cell--overflow-focusable:focus-visible) {
+  outline: var(--pt-focus-ring-width) solid var(--pt-color-primary);
+  outline-offset: -2px;
+  border-radius: 2px;
+}
+.vp-doc .pt-demo .pt-table__cell--overflow-focusable:focus-visible {
+  outline: none;
+}
 .vp-doc .pt-demo .v2-workbench,
 .vp-doc .pt-demo .v2-dark-surface {
   width: 100%;

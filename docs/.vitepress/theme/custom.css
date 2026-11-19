@@ -91,6 +91,16 @@ body,
 .vp-doc .pt-demo .pt-table__body--loading .pt-table__skeleton-row td {
   background-color: transparent !important;
 }
+.vp-doc .pt-demo .pt-table__cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.vp-doc .pt-demo .pt-table__table th,
+.vp-doc .pt-demo .pt-table__table td {
+  overflow: hidden;
+  max-width: 0;
+}
 .vp-doc .pt-demo .v2-workbench,
 .vp-doc .pt-demo .v2-dark-surface {
   width: 100%;

@@ -63,6 +63,7 @@ const loading = ref(false)
 | prop | Field name on the row | `string` |
 | label | Header text | `string` |
 | width / minWidth | Column width | `string \| number` |
+| showOverflowTooltip | Ellipsis + tooltip for default cells | `boolean` (default `true`; `false` keeps ellipsis, no tooltip) |
 | align | Cell alignment | `'left' \| 'center' \| 'right'` |
 | formatter | Custom display value | `(row, column, cellValue, index) => string \| number` |
 | slot | Named slot for the cell | `string` |
@@ -74,6 +75,24 @@ const loading = ref(false)
 | [column.slot] | Custom cell for a named column |
 | cell | Fallback custom cell for every column without a named slot |
 | empty | Empty state |
+
+## Column width & overflow (integration)
+
+`PtTable` uses **`table-layout: fixed`** and applies widths via **`colgroup`**. Overflowing text must live inside **`.pt-table__cell`** within the `td`; otherwise glyphs can paint into the next column regardless of host layout.
+
+1. Set an explicit **`width`** per column (`px` or `%`) so the sum fits the table container. `minWidth` alone can still squeeze columns when the total exceeds the container.
+2. **Default cells** (no column `slot`, no table-level `cell` slot): ellipsis + tooltip when `showOverflowTooltip` is true (default). Set `false` to opt out of the tooltip only.
+3. **Custom slots**: the library does not auto-ellipsis; wrap content with **`PtTableEllipsisCell`** (same pattern as a host-local ellipsis helper).
+4. Do **not** fix collisions with global `.pt-table td { overflow: visible }` or display overrides—fix widths and in-cell overflow.
+5. **`PtInput` has no `loading` prop**; use the `suffix` slot for async spinners.
+
+```vue
+<pt-table :columns="columns" :data="rows">
+  <template #title="{ value }">
+    <pt-table-ellipsis-cell :content="value" />
+  </template>
+</pt-table>
+```
 
 ## Sorting, loading, and virtual scroll
 

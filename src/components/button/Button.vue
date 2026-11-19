@@ -32,7 +32,7 @@ const classes = computed(() => [
   {
     'pt-button--plain': props.plain && !props.text,
     'pt-button--text': props.text,
-    'is-disabled': props.disabled || props.loading,
+    'is-disabled': props.disabled,
     'is-loading': props.loading
   }
 ])

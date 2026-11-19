@@ -36,6 +36,7 @@ describe('PtButton', () => {
 
     const loading = mount(PtButton, { props: { loading: true }, slots: { default: 'Wait' } })
     expect(loading.get('button').element.disabled).toBe(true)
+    expect(loading.classes()).not.toContain('is-disabled')
     expect(loading.get('button').attributes('aria-busy')).toBe('true')
     expect(loading.find('.pt-button__spinner').exists()).toBe(true)
   })

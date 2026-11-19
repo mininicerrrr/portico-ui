@@ -118,20 +118,33 @@
 }
 .pt-button.is-disabled:hover,
 .pt-button:disabled:hover { border-color: inherit; color: inherit; background: inherit; }
-.pt-button.is-loading .pt-button__content { visibility: hidden; }
 .pt-button.is-loading .pt-button__icon { visibility: hidden; }
 .pt-button.is-loading .pt-button__spinner {
   width: 16px;
   height: 16px;
   font-size: 16px;
   flex: none;
-  margin-right: -6px;
 }
-.pt-button--primary.is-disabled,
-.pt-button--primary:disabled {
-  background: var(--pt-color-primary-disabled-bg);
-  color: var(--pt-color-primary-disabled-fg);
+.pt-button.is-loading.pt-button--primary,
+.pt-button.is-loading.pt-button--primary:disabled {
+  background: var(--pt-color-primary);
+  color: var(--pt-text-inverse);
   border-color: transparent;
+  opacity: 1;
+}
+.pt-button.is-loading.pt-button--success,
+.pt-button.is-loading.pt-button--success:disabled { background: var(--pt-color-success); color: var(--pt-text-inverse); border-color: transparent; }
+.pt-button.is-loading.pt-button--warning,
+.pt-button.is-loading.pt-button--warning:disabled { background: var(--pt-color-warning); color: var(--pt-text-inverse); border-color: transparent; }
+.pt-button.is-loading.pt-button--danger,
+.pt-button.is-loading.pt-button--danger:disabled { background: var(--pt-color-danger); color: var(--pt-text-inverse); border-color: transparent; }
+.pt-button.is-loading.pt-button--info,
+.pt-button.is-loading.pt-button--info:disabled { background: var(--pt-color-info); color: var(--pt-text-inverse); border-color: transparent; }
+.pt-button--primary.is-disabled,
+.pt-button--primary:disabled:not(.is-loading) {
+  background: var(--pt-bg-disabled);
+  color: var(--pt-text-disabled);
+  border-color: var(--pt-border-secondary-disabled);
 }
 
 /* Input */
@@ -707,6 +720,24 @@
   text-align: left;
   border-bottom: var(--pt-border-width) solid var(--pt-border-light);
   color: var(--pt-text-regular);
+  overflow: hidden;
+  max-width: 0;
+}
+.pt-table td .pt-tooltip {
+  display: block;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  vertical-align: middle;
+}
+.pt-table__cell {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 .pt-table th {
   background: var(--pt-bg-soft);

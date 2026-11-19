@@ -68,7 +68,41 @@ const loading = ref(false)
 
 ### TableColumn
 
-`prop`、`label`、`width`、`minWidth`、`align`、`formatter`、`slot`、`sortable`（`true` 或 `custom`）、`sortMethod`。事件：`sort-change`、`current-change`。
+| 字段 | 说明 |
+| --- | --- |
+| prop / label | 字段与表头 |
+| width / minWidth | 列宽（见下方集成指南） |
+| align | `left` / `center` / `right` |
+| formatter / slot / sortable / sortMethod | 格式化、插槽、排序 |
+| showOverflowTooltip | `boolean`，默认 **`true`**：默认单元格单行省略 + 悬停 Tooltip 全文；设为 `false` 仍省略但不弹 Tooltip |
+
+事件：`sort-change`、`current-change`。
+
+## 列宽与长文本溢出（集成指南）
+
+`PtTable` 使用 **`table-layout: fixed`** 与 **`colgroup`** 应用列宽。文本必须在 **`td` 内被 `.pt-table__cell` 包裹**才会在格内省略，否则会绘制到相邻列（与宿主侧是否重叠无关）。
+
+1. **为每列设置 `width`（推荐）**（`px` 或 `%`），使各列宽度之和 **≤ 表格外层容器宽度**。仅设 `minWidth` 且总和超过容器时，列会被挤压，仍可能叠字。
+2. **默认单元格**（无 `slot` / 无全局 `cell` 插槽）：自动渲染 `.pt-table__cell`；`showOverflowTooltip` 默认为 `true`（向后兼容：行为相对 v1 为「省略 + Tooltip」，可用 `false` 关闭 Tooltip）。
+3. **自定义列 `slot` / 通用 `cell` 插槽**：库**不会**自动省略。请在插槽内使用 **`PtTableEllipsisCell`**（或自行套用相同结构的 `.pt-table__cell` + `PtTooltip`）。
+4. **禁止**用应用或文档全局 CSS 覆盖 `.pt-table td { overflow: visible }`、改 `display` 等方式“修”叠字——应修正列宽与单元格内溢出。
+5. **`PtInput.loading` 不存在**；输入框异步态请用 `suffix` 插槽（参见 [Visual v2 验证](./visual-v2#v2-input-async)）。
+
+```vue
+<pt-table :columns="columns" :data="rows" style="width: 100%">
+  <template #title="{ value }">
+    <pt-table-ellipsis-cell :content="value" />
+  </template>
+</pt-table>
+```
+
+```ts
+const columns = [
+  { prop: 'title', label: '标题', width: 200, slot: 'title' },
+  { prop: 'email', label: '邮箱', width: 220, showOverflowTooltip: true },
+  { prop: 'role', label: '角色', width: 96 },
+]
+```
 
 ### Slots
 

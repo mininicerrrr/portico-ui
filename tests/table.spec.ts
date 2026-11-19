@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { h } from 'vue'
-import { PtTable, type TableColumn } from '../src/components/table'
+import { PtTable, PtTableEllipsisCell, type TableColumn } from '../src/components/table'
 
 const columns: TableColumn[] = [
   { prop: 'name', label: 'Name' },
@@ -9,6 +9,28 @@ const columns: TableColumn[] = [
 ]
 
 describe('PtTable', () => {
+  it('wraps default cells for ellipsis overflow tooltip', () => {
+    const wrapper = mount(PtTable, {
+      props: {
+        columns: [{ prop: 'name', label: 'Name' }],
+        data: [{ id: 1, name: '品牌资产协作规范与交付验收清单' }]
+      }
+    })
+    expect(wrapper.find('.pt-table__cell').exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'PtTooltip' }).exists()).toBe(true)
+  })
+
+  it('omits tooltip when showOverflowTooltip is false', () => {
+    const wrapper = mount(PtTable, {
+      props: {
+        columns: [{ prop: 'name', label: 'Name', showOverflowTooltip: false }],
+        data: [{ id: 1, name: 'Ada' }]
+      }
+    })
+    expect(wrapper.find('.pt-table__cell').exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'PtTooltip' }).exists()).toBe(false)
+  })
+
   it('renders column headers and row data', () => {
     const wrapper = mount(PtTable, {
       props: {
@@ -80,10 +102,10 @@ describe('PtTable extras', () => {
     })
     await wrapper.findAll('th')[0].trigger('click')
     expect(wrapper.emitted('sort-change')?.[0]).toEqual([{ prop: 'name', order: 'asc' }])
-    expect(wrapper.findAll('tbody tr').map((row) => row.find('td').text())).toEqual(['Ada', 'Bo', 'Lin'])
+    expect(wrapper.findAll('tbody tr').map((row) => row.find('.pt-table__cell').text())).toEqual(['Ada', 'Bo', 'Lin'])
     await wrapper.findAll('th')[0].trigger('click')
     expect(wrapper.emitted('sort-change')?.[1]).toEqual([{ prop: 'name', order: 'desc' }])
-    expect(wrapper.findAll('tbody tr').map((row) => row.find('td').text())).toEqual(['Lin', 'Bo', 'Ada'])
+    expect(wrapper.findAll('tbody tr').map((row) => row.find('.pt-table__cell').text())).toEqual(['Lin', 'Bo', 'Ada'])
   })
 
   it('shows skeleton rows and a loading status while keeping headers', () => {

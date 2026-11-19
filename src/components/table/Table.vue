@@ -3,6 +3,7 @@ import { computed, ref, useSlots, watch } from 'vue'
 import { useLocale } from '../../locale'
 import PtSpinner from '../icons/PtSpinner.vue'
 import PtIcon from '../icons/PtIcon.vue'
+import PtTooltip from '../tooltip/Tooltip.vue'
 import { iconChevron, iconChevronUp } from '../icons/icons'
 
 export type TableSortOrder = 'asc' | 'desc' | null
@@ -17,6 +18,8 @@ export interface TableColumn {
   slot?: string
   sortable?: boolean | 'custom'
   sortMethod?: (a: Record<string, unknown>, b: Record<string, unknown>) => number
+  /** Ellipsize overflowing text; show full value in tooltip on hover when true. */
+  showOverflowTooltip?: boolean
 }
 
 export interface TableProps {
@@ -136,6 +139,16 @@ function cellValue(row: Record<string, unknown>, column: TableColumn, index: num
   return column.formatter ? column.formatter(row, column, value, index) : value
 }
 
+function cellText(row: Record<string, unknown>, column: TableColumn, index: number) {
+  const value = cellValue(row, column, index)
+  if (value == null) return ''
+  return String(value)
+}
+
+function overflowTooltip(column: TableColumn) {
+  return column.showOverflowTooltip !== false
+}
+
 function hasSlot(name?: string) {
   return Boolean(name && slots[name])
 }
@@ -188,6 +201,9 @@ watch(
       @scroll="onScroll"
     >
       <table class="pt-table__table">
+        <colgroup>
+          <col v-for="column in columns" :key="`col-${column.prop}`" :style="widthStyle(column)" />
+        </colgroup>
         <thead>
           <tr>
             <th
@@ -237,7 +253,15 @@ watch(
             <td v-for="column in columns" :key="column.prop" :style="widthStyle(column)">
               <slot v-if="hasSlot(column.slot)" :name="column.slot" :row="entry.row" :column="column" :index="entry.index" :value="entry.row[column.prop]" />
               <slot v-else-if="$slots.cell" name="cell" :row="entry.row" :column="column" :index="entry.index" :value="entry.row[column.prop]" />
-              <template v-else>{{ cellValue(entry.row, column, entry.index) }}</template>
+              <pt-tooltip
+                v-else-if="overflowTooltip(column)"
+                :content="cellText(entry.row, column, entry.index)"
+                placement="top"
+                :disabled="!cellText(entry.row, column, entry.index)"
+              >
+                <span class="pt-table__cell">{{ cellText(entry.row, column, entry.index) }}</span>
+              </pt-tooltip>
+              <span v-else class="pt-table__cell">{{ cellText(entry.row, column, entry.index) }}</span>
             </td>
           </tr>
           <tr v-if="virtual && bottomSpacer" class="pt-table__spacer" aria-hidden="true">

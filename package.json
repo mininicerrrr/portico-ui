@@ -50,6 +50,7 @@
     "docs:preview": "vitepress preview docs",
     "docs:preview-static": "node scripts/static-docs-server.mjs",
     "docs:preview-smoke": "node scripts/docs-preview-smoke.mjs",
+    "capture:v2-targeted": "V2_CAPTURE_ONLY=live-v2-buttons-pressed.png,live-v2-table-tooltip.png,live-v2-table-hover.png,live-v2-table-sorted.png,live-v2-input-async.png,live-v2-input-async-dark.png,live-v2-dark.png,live-v2-table-states.png node scripts/capture-v2-screenshots.mjs",
     "typecheck": "vue-tsc --noEmit -p tsconfig.app.json"
   },
   "devDependencies": {

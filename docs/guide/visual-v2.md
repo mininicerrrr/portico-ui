@@ -10,6 +10,7 @@
 
 <script setup>
 import { computed, ref } from 'vue'
+import PtSpinner from '../../src/components/icons/PtSpinner.vue'
 
 const members = [
   { id: '1', name: '陈明', email: 'ming@example.com', role: '管理员', status: '正常', updated: '2026-03-01' },
@@ -149,7 +150,7 @@ const asyncInput = ref('异步校验中')
   <div class="pt-theme pt-root v2-shot-584">
     <pt-input v-model="asyncInput" style="width: 100%">
       <template #suffix>
-        <pt-spinner style="width: 16px; height: 16px" />
+        <span class="v2-suffix-spinner" aria-hidden="true"><PtSpinner /></span>
       </template>
     </pt-input>
     <p style="margin: 8px 0 0; font-size: 12px; color: var(--pt-text-secondary)">组件未提供 <code>loading</code> 属性；异步态可用 <code>suffix</code> 插槽。</p>
@@ -162,6 +163,16 @@ const asyncInput = ref('异步校验中')
       <pt-input model-value="bad@" />
     </pt-form-item>
     <pt-input disabled model-value="已停用字段" style="width: 100%; margin-top: 12px" />
+  </div>
+</DemoBox>
+
+<DemoBox title="暗色：异步 suffix Spinner（suffix 插槽）" id="v2-input-async-dark">
+  <div class="v2-dark-surface pt-theme pt-root v2-shot-584" data-pt-theme="dark">
+    <pt-input model-value="异步校验中" style="width: 100%">
+      <template #suffix>
+        <span class="v2-suffix-spinner" aria-hidden="true"><PtSpinner /></span>
+      </template>
+    </pt-input>
   </div>
 </DemoBox>
 
@@ -194,15 +205,9 @@ const asyncInput = ref('异步校验中')
   </div>
 </DemoBox>
 
-<DemoBox title="表格：空结果 · 较宽容器" id="v2-table-states">
-  <div class="pt-theme pt-root v2-workbench">
-    <pt-table :columns="columnsWide" :data="[]" empty-text="没有找到匹配的成员" style="width: 100%">
-      <template #empty>
-        <pt-empty description="没有找到匹配的成员">
-          <pt-button text type="primary">清空筛选条件</pt-button>
-        </pt-empty>
-      </template>
-    </pt-table>
+<DemoBox title="表格：820px 容器 · 有数据（宽表溢出验收）" id="v2-table-states">
+  <div class="pt-theme pt-root v2-workbench v2-shot-820">
+    <pt-table :columns="columnsWide" :data="members" style="width: 100%" />
   </div>
 </DemoBox>
 
@@ -213,7 +218,7 @@ const asyncInput = ref('异步校验中')
 </DemoBox>
 
 <DemoBox title="暗色：工具栏 + 全宽表加载" id="v2-dark">
-  <div class="v2-dark-surface pt-theme pt-root" data-pt-theme="dark">
+  <div class="v2-dark-surface pt-theme pt-root v2-shot-584" data-pt-theme="dark">
     <pt-space wrap :size="12" style="margin-bottom: 12px">
       <pt-input placeholder="搜索姓名或邮箱" style="width: 220px" />
       <pt-select
@@ -231,5 +236,23 @@ const asyncInput = ref('异步校验中')
 .v2-shot-584 {
   width: 584px;
   max-width: 100%;
+  box-sizing: border-box;
+}
+.v2-shot-820 {
+  width: 820px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.v2-suffix-spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--pt-color-primary);
+}
+.v2-suffix-spinner .pt-spinner {
+  width: 16px;
+  height: 16px;
 }
 </style>

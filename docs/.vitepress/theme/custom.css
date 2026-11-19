@@ -19,7 +19,7 @@ body,
   border: 1px solid var(--vp-c-divider);
   border-radius: 10px;
   background: var(--vp-c-bg);
-  overflow: hidden;
+  overflow: visible;
 }
 .pt-demo__title {
   padding: 10px 16px;
@@ -88,6 +88,22 @@ body,
   color: var(--pt-text-color) !important;
   font-weight: var(--pt-font-weight-medium) !important;
   background-color: var(--pt-bg-soft) !important;
+}
+.vp-doc .pt-demo .pt-table__table tbody tr:hover td {
+  background-color: var(--pt-bg-row-hover) !important;
+}
+.vp-doc .pt-demo .pt-table__table tbody tr.is-current td,
+.vp-doc .pt-demo .pt-table__table tbody tr.is-selected td {
+  background-color: var(--pt-bg-row-selected) !important;
+}
+.vp-doc .pt-demo .pt-button--primary,
+.vp-doc .pt-demo .pt-button--primary .pt-button__content,
+.vp-doc .pt-demo .pt-button--primary .pt-button__spinner {
+  color: var(--pt-text-inverse) !important;
+}
+.vp-doc .pt-demo .pt-button--primary:active,
+.vp-doc .pt-demo .pt-button--primary:active .pt-button__content {
+  color: var(--pt-text-inverse) !important;
 }
 .vp-doc .pt-demo .pt-table__body--loading .pt-table__skeleton-row td {
   background-color: transparent !important;

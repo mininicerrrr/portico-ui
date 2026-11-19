@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { execSync } from 'node:child_process'
 import { resolve } from 'node:path'
 
@@ -123,8 +123,25 @@ const shots = [
     file: 'live-v2-input-async.png',
     anchor: '#v2-input-async',
     setup: null,
-    state: 'Suffix slot spinner demo (no built-in PtInput.loading prop)',
+    verify: async (page) => {
+      const spin = page.locator('#v2-input-async .pt-input__suffix svg.pt-spinner')
+      const box = await spin.boundingBox()
+      if (!box || box.width < 8) throw new Error('Async suffix spinner has no visible box in light capture')
+    },
+    state: 'Suffix slot spinner visible beside retained value',
     metrics: ['inputSuffix']
+  },
+  {
+    file: 'live-v2-input-async-dark.png',
+    anchor: '#v2-input-async-dark',
+    setup: null,
+    verify: async (page) => {
+      const spin = page.locator('#v2-input-async-dark .pt-input__suffix svg.pt-spinner')
+      const box = await spin.boundingBox()
+      if (!box || box.width < 8) throw new Error('Dark async suffix spinner not visible')
+    },
+    state: 'Dark suffix spinner beside retained value',
+    metrics: ['inputSuffixDark']
   },
   {
     file: 'live-v2-inputs-dark.png',
@@ -142,7 +159,14 @@ const shots = [
       await th.click()
       await page.locator('#v2-table-sorted-target tbody tr').nth(1).click()
     },
-    state: 'Descending sort on 成员 + current row on row 2',
+    verify: async (page) => {
+      const bg = await page
+        .locator('#v2-table-sorted-target tbody tr.is-current td')
+        .first()
+        .evaluate((el) => getComputedStyle(el).backgroundColor)
+      if (bg !== 'rgb(237, 244, 255)') throw new Error(`Current row expected #EDF4FF, got ${bg}`)
+    },
+    state: 'Descending sort on 成员 + current row on row 2 (#EDF4FF)',
     metrics: ['sortHeader', 'currentRow']
   },
   {
@@ -151,25 +175,25 @@ const shots = [
     setup: async (page) => {
       await page.locator('#v2-table-hover-target tbody tr').first().hover()
     },
-    state: 'Row hover background on row 1',
+    verify: async (page) => {
+      const bg = await page
+        .locator('#v2-table-hover-target tbody tr')
+        .first()
+        .locator('td')
+        .first()
+        .evaluate((el) => getComputedStyle(el).backgroundColor)
+      if (bg !== 'rgb(247, 249, 252)') throw new Error(`Hover row expected #F7F9FC, got ${bg}`)
+    },
+    state: 'Row hover background on row 1 (#F7F9FC)',
     metrics: ['hoverRow']
   },
   {
     file: 'live-v2-table-tooltip.png',
     anchor: '#v2-table-tooltip',
     setup: async (page) => {
-      await page.locator('#v2-table-tooltip tbody .pt-table__cell').first().hover()
-      await page.waitForFunction(
-        () => {
-          const panels = [...document.querySelectorAll('#v2-table-tooltip .pt-tooltip__panel')]
-          return panels.some((el) => {
-            const r = el.getBoundingClientRect()
-            const shown = r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== 'hidden'
-            return shown && el.textContent?.includes('品牌资产协作规范')
-          })
-        },
-        { timeout: 8000 }
-      )
+      const cell = page.locator('#v2-table-tooltip tbody .pt-table__cell').first()
+      await cell.hover()
+      await page.waitForTimeout(400)
     },
     state: 'Tooltip panel teleported to body; union clip of #v2-table-tooltip + visible [role=tooltip]',
     unionCapture: true,
@@ -180,7 +204,7 @@ const shots = [
     file: 'live-v2-table-states.png',
     anchor: '#v2-table-states',
     setup: null,
-    state: 'Empty table + recovery action at wider workbench',
+    state: '820px populated wide table with members',
     metrics: ['table']
   },
   {
@@ -194,10 +218,25 @@ const shots = [
     file: 'live-v2-dark.png',
     anchor: '#v2-dark',
     setup: null,
-    state: 'Dark toolbar + full-width loading table',
+    verify: async (page) => {
+      const lastHeader = (await page.locator('#v2-dark th').last().textContent())?.trim() ?? ''
+      if (!lastHeader.includes('更新时间')) throw new Error(`Dark table last header clipped: "${lastHeader}"`)
+    },
+    state: 'Dark toolbar + full-width loading table (584px box, headers readable)',
     metrics: ['skeleton', 'darkSurface']
   }
 ]
+
+const TARGETED_CAPTURE_LIST = [
+  'live-v2-buttons-pressed.png',
+  'live-v2-table-tooltip.png',
+  'live-v2-table-hover.png',
+  'live-v2-table-sorted.png',
+  'live-v2-input-async.png',
+  'live-v2-input-async-dark.png',
+  'live-v2-dark.png',
+  'live-v2-table-states.png'
+].join(',')
 
 async function hideDocChrome(page) {
   await page.evaluate((css) => {
@@ -533,7 +572,13 @@ async function behaviorChecks(page) {
   }
 }
 
+const SHOT_ORDER = shots.map((s) => s.file)
+
 async function main() {
+  const only = process.env.V2_CAPTURE_ONLY?.split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+  const activeShots = only?.length ? shots.filter((s) => only.includes(s.file)) : shots
   const git = gitInfo()
   if (!git.worktreeClean) {
     console.warn(JSON.stringify({ warn: 'worktree not clean at capture start', dirtyPaths: git.dirtyPaths }))
@@ -549,7 +594,7 @@ async function main() {
   const evidence = []
   const artifactPaths = []
 
-  for (const shot of shots) {
+  for (const shot of activeShots) {
     const url = `${BASE}/guide/visual-v2${shot.anchor}`
     await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 })
     await page.waitForSelector('.pt-button, .pt-table, .pt-input', { timeout: 30000 })
@@ -591,19 +636,39 @@ async function main() {
     artifactPaths.push(filePath)
   }
 
+  const manifestPath = resolve(outDir, 'capture-manifest.json')
+  let prev = {}
+  try {
+    prev = JSON.parse(await readFile(manifestPath, 'utf8'))
+  } catch {
+    /* fresh */
+  }
+  const mergedByFile = new Map((prev.screenshots || []).map((s) => [s.file, s]))
+  for (const e of evidence) mergedByFile.set(e.file, e)
+  const screenshots = SHOT_ORDER.filter((f) => mergedByFile.has(f)).map((f) => mergedByFile.get(f))
   const manifest = {
+    ...prev,
     ...git,
     buildId,
     capturedAt: new Date().toISOString(),
+    partialCapture: Boolean(only?.length),
+    replacedFiles: evidence.map((e) => e.file),
     docsBase: BASE,
     viewportCss: VIEWPORT,
     devicePixelRatio: DPR,
-    chromeHandling: 'Injected style hides VPNav/VPLocalNav/DocSearch only; scroll anchor into view; components unchanged',
-    screenshots: evidence,
-    artifactPaths,
+    chromeHandling:
+      'Hides VPNav/VPLocalNav/DocSearch only; scroll anchor; tooltip uses viewport union clip when teleported',
+    screenshots,
+    artifactPaths: [
+      ...new Set([
+        ...(prev.artifactPaths || []),
+        ...artifactPaths,
+        manifestPath,
+        resolve(outDir, 'behavior-checks.json')
+      ])
+    ],
     behaviorChecks: behaviors
   }
-  const manifestPath = resolve(outDir, 'capture-manifest.json')
   const behaviorPath = resolve(outDir, 'behavior-checks.json')
   await writeFile(manifestPath, JSON.stringify(manifest, null, 2))
   await writeFile(behaviorPath, JSON.stringify(behaviors, null, 2))

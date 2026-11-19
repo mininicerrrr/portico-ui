@@ -30,7 +30,7 @@ const STRICT_TSCONFIG = {
 }
 
 const VUE_SUPPORT =
-  'peerDependencies vue ^3.4.0 — runtime matrix at 3.4.38; strict published .d.ts matrix at 3.5.22 & 3.5.45 (vue-tsc/TS5.9.3 aligned with Vue 3.5 typings)'
+  'peerDependencies vue ^3.4.0 — published .d.ts emitted against vue-dts-baseline@3.4.38; strict TS matrix 3.4.0/3.4.21/3.4.38/3.5.22/3.5.45 with TS 5.9.3 skipLibCheck:false'
 
 function sh(cmd, opts = {}) {
   return execSync(cmd, { encoding: 'utf8', ...opts })
@@ -68,21 +68,25 @@ function resolveNode24Bin() {
 
 function assertPublishedDts(dtsPath) {
   const src = readFileSync(dtsPath, 'utf8')
+  if (/vue-dts-baseline/.test(src)) {
+    throw new Error('published index.d.ts must not reference vue-dts-baseline paths (consumers resolve `vue` only)')
+  }
+  if (/CreateComponentPublicInstanceWithMixins/.test(src)) {
+    throw new Error('published index.d.ts must not reference Vue 3.5-only CreateComponentPublicInstanceWithMixins')
+  }
   if (/declare\s+module\s+['"]vue['"]/.test(src)) {
     throw new Error('published index.d.ts must not declare module vue (avoids widening consumer namespace)')
-  }
-  if (!/type GlobalComponents = Record<string, import\("vue"\)\.Component>/.test(src)) {
-    throw new Error('published index.d.ts missing GlobalComponents Record<> alias')
-  }
-  if (!/type GlobalDirectives = Record<string, import\("vue"\)\.Directive>/.test(src)) {
-    throw new Error('published index.d.ts missing GlobalDirectives Record<> alias')
   }
   if (/export interface GlobalComponents[\s\S]*\[name:\s*string\]/.test(src)) {
     throw new Error('published index.d.ts must not contain widened GlobalComponents index signature')
   }
+  if (!/from 'vue'/.test(src)) {
+    throw new Error('published index.d.ts must import types from `vue`')
+  }
   return {
-    hasRecordAliases: true,
+    importsFromVueOnly: true,
     noDeclareModuleVue: true,
+    noVue35OnlyInstanceType: true,
     noGlobalIndexSignature: true
   }
 }
@@ -258,11 +262,11 @@ console.log('vue', '3.4.38', 'keys', Object.keys(p).length);
       )
       shInherit('npm install', { cwd: dir })
       shInherit('node index.cjs', { cwd: dir })
-      return { note: 'runtime CJS only — rolled d.ts targets Vue 3.5+ type surface' }
+      return { note: 'runtime CJS at peer lower bound (types covered by strict TS matrix)' }
     })
   )
 
-  for (const vueVer of ['3.5.22', '3.5.45']) {
+  for (const vueVer of ['3.4.0', '3.4.21', '3.4.38', '3.5.22', '3.5.45']) {
     matrix.push(
       await runFixture(`ts-strict-positive-vue-${vueVer}`, async (dir) => {
         await writeJson(join(dir, 'package.json'), {
@@ -290,26 +294,28 @@ export default defineComponent({
     )
   }
 
-  matrix.push(
-    await runFixture('ts-strict-negative-invalid-button-prop', async (dir) => {
-      await writeJson(join(dir, 'package.json'), {
-        name: 'ts-negative',
-        private: true,
-        type: 'module',
-        devDependencies: { typescript: '5.9.3', vue: '3.5.45', 'portico-ui': `file:${tgzPath}` }
-      })
-      await writeFile(
-        join(dir, 'bad-props.ts'),
-        `import { type ButtonProps } from 'portico-ui';
+  for (const vueVer of ['3.4.38', '3.5.45']) {
+    matrix.push(
+      await runFixture(`ts-strict-negative-invalid-button-prop-vue-${vueVer.replace(/\./g, '-')}`, async (dir) => {
+        await writeJson(join(dir, 'package.json'), {
+          name: 'ts-negative',
+          private: true,
+          type: 'module',
+          devDependencies: { typescript: '5.9.3', vue: vueVer, 'portico-ui': `file:${tgzPath}` }
+        })
+        await writeFile(
+          join(dir, 'bad-props.ts'),
+          `import { type ButtonProps } from 'portico-ui';
 const bad: ButtonProps = { type: 'phantom-not-a-button-type' };
 void bad;
 `
-      )
-      shInherit('npm install', { cwd: dir })
-      const tsc = await tscExpect(dir, 'tsconfig.json', ['bad-props.ts'], true)
-      return { vue: '3.5.45', assertion: 'invalid ButtonProps.type must error', tsc }
-    })
-  )
+        )
+        shInherit('npm install', { cwd: dir })
+        const tsc = await tscExpect(dir, 'tsconfig.json', ['bad-props.ts'], true)
+        return { vue: vueVer, assertion: 'invalid ButtonProps.type must error', tsc }
+      })
+    )
+  }
 
   matrix.push(
     await runFixture('ts-strict-negative-unknown-export', async (dir) => {
@@ -402,7 +408,7 @@ export default defineComponent({
     nodeHost: nodeVersion(),
     strictLibCheck: { strict: true, skipLibCheck: false },
     dtsPatchNote:
-      'patch-published-dts.mjs replaces rolled GlobalComponents/Directives imports with Record<> aliases only — no declare module vue index signature in published types',
+      'dts emit via tsconfig.dts.json + vue-dts-baseline@3.4.38; patch-published-dts rewrites baseline paths to `vue` and strips declare-module vue widening',
     matrix
   }
   await mkdir(dirname(evidenceOut), { recursive: true })

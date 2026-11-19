@@ -8,7 +8,8 @@ export default defineConfig({
   plugins: [
     vue(),
     dts({
-      tsconfigPath: './tsconfig.app.json',
+      // Published .d.ts must satisfy peer `vue` ^3.4 — emit against Vue 3.4 type surface.
+      tsconfigPath: './tsconfig.dts.json',
       rollupTypes: true,
       insertTypesEntry: true,
       cleanVueFileName: true,

@@ -220,7 +220,7 @@ const shots = [
   },
   {
     file: 'live-v2-dark.png',
-    anchor: '#v2-dark',
+    anchor: '#v2-dark .v2-dark-surface',
     setup: null,
     verify: async (page) => {
       const lastHeader = (await page.locator('#v2-dark th').last().textContent())?.trim() ?? ''

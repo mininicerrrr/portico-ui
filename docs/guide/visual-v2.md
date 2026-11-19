@@ -224,7 +224,7 @@ const asyncInput = ref('异步校验中')
 </DemoBox>
 
 <DemoBox title="暗色：工具栏 + 全宽表加载" id="v2-dark">
-  <div class="v2-dark-surface pt-theme pt-root v2-shot-640" data-pt-theme="dark">
+  <div class="v2-dark-surface pt-theme pt-root v2-shot-584" data-pt-theme="dark">
     <pt-space wrap :size="12" style="margin-bottom: 12px">
       <pt-input placeholder="搜索姓名或邮箱" style="width: 220px" />
       <pt-select
@@ -270,5 +270,9 @@ const asyncInput = ref('异步校验中')
 .v2-suffix-spinner .pt-spinner {
   width: 16px;
   height: 16px;
+}
+#v2-dark .pt-table th,
+#v2-dark .pt-table td {
+  padding-inline: 8px !important;
 }
 </style>

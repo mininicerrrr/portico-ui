@@ -206,9 +206,14 @@ const shots = [
   },
   {
     file: 'live-v2-table-states.png',
-    anchor: '#v2-table-states',
+    anchor: '#v2-table-states .v2-shot-820',
     setup: null,
-    state: '820px populated wide table with members',
+    state: '820px populated wide table with members (clip .v2-shot-820, not 624px DemoBox)',
+    viewportClip: true,
+    verify: async (page) => {
+      const box = await page.locator('#v2-table-states .v2-shot-820').boundingBox()
+      if (!box || box.width < 800) throw new Error(`820px table clip too narrow: ${box?.width}`)
+    },
     metrics: ['table']
   },
   {
@@ -241,6 +246,12 @@ const TARGETED_CAPTURE_LIST = [
   'live-v2-dark.png',
   'live-v2-table-states.png'
 ].join(',')
+
+/** Designer corrective run: PNGs re-captured after b1901ae (others remain inherited). */
+const CORRECTIVE_RUN_REPLACED = [
+  ...TARGETED_CAPTURE_LIST.split(','),
+  'live-v2-composition.png'
+]
 
 async function hideDocChrome(page) {
   await page.evaluate((css) => {
@@ -634,6 +645,7 @@ async function main() {
       pngSize = box ? { width: Math.round(box.width), height: Math.round(box.height) } : null
     }
     if (shot.teardown) await shot.teardown(page)
+    const capturedAtIso = new Date().toISOString()
     evidence.push({
       file: shot.file,
       absolutePath: filePath,
@@ -643,7 +655,10 @@ async function main() {
       captureFraming,
       unionMeta,
       pngSize,
-      metrics
+      metrics,
+      provenance: 'captured',
+      captureCommitSha: git.commitSha,
+      capturedAt: capturedAtIso
     })
     artifactPaths.push(filePath)
   }
@@ -655,16 +670,35 @@ async function main() {
   } catch {
     /* fresh */
   }
+  const replacedFilesThisRun = evidence.map((e) => e.file)
   const mergedByFile = new Map((prev.screenshots || []).map((s) => [s.file, s]))
   for (const e of evidence) mergedByFile.set(e.file, e)
+  const inheritSha = prev.manifestCommitSha ?? prev.commitSha ?? null
+  for (const [file, entry] of mergedByFile) {
+    if (replacedFilesThisRun.includes(file)) continue
+    entry.provenance = 'inherited'
+    entry.inheritedFromManifestCommitSha = inheritSha
+    if (!entry.captureNote) {
+      entry.captureNote = 'PNG retained from earlier capture run; not re-shot this manifest write'
+    }
+  }
   const screenshots = SHOT_ORDER.filter((f) => mergedByFile.has(f)).map((f) => mergedByFile.get(f))
+  const replacedFilesCumulative = [
+    ...new Set([...(prev.replacedFilesCumulative || prev.replacedFiles || []), ...CORRECTIVE_RUN_REPLACED, ...replacedFilesThisRun])
+  ]
+  const manifestWrittenAt = new Date().toISOString()
   const manifest = {
     ...prev,
     ...git,
+    manifestCommitSha: git.commitSha,
     buildId,
-    capturedAt: new Date().toISOString(),
+    capturedAt: manifestWrittenAt,
     partialCapture: Boolean(only?.length),
-    replacedFiles: evidence.map((e) => e.file),
+    replacedFilesThisRun,
+    replacedFilesCumulative,
+    replacedFiles: replacedFilesThisRun,
+    inheritedScreenshotCount: screenshots.filter((s) => s.provenance === 'inherited').length,
+    capturedScreenshotCount: screenshots.filter((s) => s.provenance === 'captured').length,
     docsBase: BASE,
     viewportCss: VIEWPORT,
     devicePixelRatio: DPR,

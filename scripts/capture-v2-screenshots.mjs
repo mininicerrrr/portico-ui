@@ -85,7 +85,9 @@ const shots = [
       await page.mouse.up()
     },
     verify: async (page) => {
-      const bg = await page.locator('#v2-btn-pressed-target').evaluate((el) => getComputedStyle(el).backgroundColor)
+      const btn = page.locator('#v2-btn-pressed-target')
+      const bg = await btn.evaluate((el) => getComputedStyle(el).backgroundColor)
+      const fg = await btn.locator('.pt-button__content').evaluate((el) => getComputedStyle(el).color)
       const idle = 'rgb(52, 115, 206)'
       if (bg === idle) {
         throw new Error('Pressed state not applied: background still idle primary blue')
@@ -93,6 +95,9 @@ const shots = [
       const nums = bg.match(/\d+/g)?.map(Number)
       if (!nums || nums[0] >= 52) {
         throw new Error(`Pressed primary should darken from idle #3473CE, got ${bg}`)
+      }
+      if (fg !== 'rgb(255, 255, 255)') {
+        throw new Error(`Pressed primary label must stay --pt-text-inverse (white), got ${fg}`)
       }
     },
     state: 'Primary :active via Playwright mouse.down() on #v2-btn-pressed-target; computed bg darker than idle',
@@ -166,7 +171,9 @@ const shots = [
         { timeout: 8000 }
       )
     },
-    state: 'Tooltip panel visible with full long member title (hover first name cell)',
+    state: 'Tooltip panel teleported to body; union clip of #v2-table-tooltip + visible [role=tooltip]',
+    unionCapture: true,
+    panelMatch: '品牌资产协作规范',
     metrics: ['tooltipPanel', 'ellipsisCell']
   },
   {
@@ -308,8 +315,10 @@ async function measure(page, anchor, keys) {
       if (metricKeys.includes('pressedButton')) {
         const btn = pick('#v2-btn-pressed-target')
         const s = cs(btn)
+        const content = pick('#v2-btn-pressed-target .pt-button__content')
         out.pressedButton = {
           backgroundColor: s?.backgroundColor,
+          color: cs(content)?.color,
           borderRadius: s?.borderRadius,
           expectedActiveToken: '#275aa3'
         }
@@ -373,10 +382,10 @@ async function measure(page, anchor, keys) {
         out.hoverRow = { backgroundColor: cs(row)?.backgroundColor }
       }
       if (metricKeys.includes('tooltipPanel')) {
-        const panels = [...root.querySelectorAll('.pt-tooltip__panel')]
+        const panels = [...document.querySelectorAll('[role="tooltip"]')]
         const visible = panels.find((el) => {
           const r = el.getBoundingClientRect()
-          return r.width > 0 && r.height > 0 && el.textContent?.includes('品牌资产')
+          return r.width > 2 && r.height > 2 && el.textContent?.includes('品牌资产')
         })
         out.tooltipPanel = {
           visible: Boolean(visible),
@@ -454,14 +463,54 @@ async function assertBasics(page, shot) {
   }
   if (shot.file === 'live-v2-table-tooltip.png') {
     const ok = await page.evaluate(() => {
-      const panels = [...document.querySelectorAll('#v2-table-tooltip .pt-tooltip__panel')]
+      const panels = [...document.querySelectorAll('[role="tooltip"]')]
       return panels.some((el) => {
         const r = el.getBoundingClientRect()
-        return r.width > 0 && el.textContent?.includes('品牌资产协作规范')
+        return r.width > 2 && r.height > 2 && el.textContent?.includes('品牌资产协作规范')
       })
     })
-    if (!ok) throw new Error('Long-text tooltip panel not visible in capture frame')
+    if (!ok) throw new Error('Long-text tooltip panel not visible before union screenshot')
   }
+}
+
+async function captureUnion(page, anchor, filePath, panelMatch) {
+  const result = await page.evaluate(
+    ({ sel, match }) => {
+      const root = document.querySelector(sel)
+      const panel = [...document.querySelectorAll('[role="tooltip"]')].find((el) => {
+        const r = el.getBoundingClientRect()
+        return r.width > 2 && r.height > 2 && el.textContent?.includes(match)
+      })
+      if (!root || !panel) return null
+      const boxes = [root.getBoundingClientRect(), panel.getBoundingClientRect()]
+      const left = Math.min(...boxes.map((b) => b.left))
+      const top = Math.min(...boxes.map((b) => b.top))
+      const right = Math.max(...boxes.map((b) => b.right))
+      const bottom = Math.max(...boxes.map((b) => b.bottom))
+      const pad = 8
+      const pr = panel.getBoundingClientRect()
+      return {
+        clip: {
+          x: Math.max(0, left - pad),
+          y: Math.max(0, top - pad),
+          width: right - left + pad * 2,
+          height: bottom - top + pad * 2
+        },
+        popupBounds: {
+          x: pr.x,
+          y: pr.y,
+          width: pr.width,
+          height: pr.height,
+          text: panel.textContent?.trim()
+        },
+        targetBounds: root.getBoundingClientRect()
+      }
+    },
+    { sel: anchor, match: panelMatch }
+  )
+  if (!result?.clip) throw new Error(`union capture failed for ${anchor}`)
+  await page.screenshot({ path: filePath, clip: result.clip })
+  return result
 }
 
 async function behaviorChecks(page) {
@@ -512,16 +561,31 @@ async function main() {
     const metrics = await measure(page, shot.anchor, shot.metrics)
     const loc = page.locator(shot.anchor)
     const filePath = resolve(outDir, shot.file)
-    await loc.screenshot({ path: filePath })
+    let pngSize = null
+    let captureFraming = 'element: anchor only'
+    let unionMeta = null
+    if (shot.unionCapture) {
+      unionMeta = await captureUnion(page, shot.anchor, filePath, shot.panelMatch)
+      captureFraming = 'viewport clip: demo anchor ∪ teleported tooltip panel'
+      pngSize = {
+        width: Math.round(unionMeta.clip.width),
+        height: Math.round(unionMeta.clip.height)
+      }
+    } else {
+      await loc.screenshot({ path: filePath })
+      const box = await loc.boundingBox()
+      pngSize = box ? { width: Math.round(box.width), height: Math.round(box.height) } : null
+    }
     if (shot.teardown) await shot.teardown(page)
-    const box = await loc.boundingBox()
     evidence.push({
       file: shot.file,
       absolutePath: filePath,
       url,
       anchor: shot.anchor,
       stateSetup: shot.state,
-      pngSize: box ? { width: Math.round(box.width), height: Math.round(box.height) } : null,
+      captureFraming,
+      unionMeta,
+      pngSize,
       metrics
     })
     artifactPaths.push(filePath)

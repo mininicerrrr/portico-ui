@@ -51,19 +51,26 @@
 }
 .pt-button--primary { background: var(--pt-color-primary); }
 .pt-button--primary:hover { background: var(--pt-color-primary-hover); }
-.pt-button--primary:active { background: var(--pt-color-primary-active); }
+.pt-button--primary:active {
+  background: var(--pt-color-primary-active);
+  color: var(--pt-text-inverse);
+}
+.pt-button--primary:active .pt-button__content,
+.pt-button--primary:active .pt-button__spinner {
+  color: var(--pt-text-inverse);
+}
 .pt-button--success { background: var(--pt-color-success); }
 .pt-button--success:hover { background: var(--pt-color-success-hover); }
-.pt-button--success:active { background: var(--pt-color-success-active); }
+.pt-button--success:active { background: var(--pt-color-success-active); color: var(--pt-text-inverse); }
 .pt-button--warning { background: var(--pt-color-warning); }
 .pt-button--warning:hover { background: var(--pt-color-warning-hover); }
-.pt-button--warning:active { background: var(--pt-color-warning-active); }
+.pt-button--warning:active { background: var(--pt-color-warning-active); color: var(--pt-text-inverse); }
 .pt-button--danger { background: var(--pt-color-danger); }
 .pt-button--danger:hover { background: var(--pt-color-danger-hover); }
-.pt-button--danger:active { background: var(--pt-color-danger-active); }
+.pt-button--danger:active { background: var(--pt-color-danger-active); color: var(--pt-text-inverse); }
 .pt-button--info { background: var(--pt-color-info); }
 .pt-button--info:hover { background: var(--pt-color-info-hover); }
-.pt-button--info:active { background: var(--pt-color-info-active); }
+.pt-button--info:active { background: var(--pt-color-info-active); color: var(--pt-text-inverse); }
 
 
 .pt-button--plain.pt-button--primary { background: var(--pt-color-primary-soft); color: var(--pt-color-primary); border-color: color-mix(in srgb, var(--pt-color-primary) 45%, white); }
@@ -720,7 +727,7 @@
   text-align: left;
   border-bottom: var(--pt-border-width) solid var(--pt-border-light);
   color: var(--pt-text-regular);
-  overflow: hidden;
+  overflow: visible;
   max-width: 0;
 }
 .pt-table td .pt-tooltip {

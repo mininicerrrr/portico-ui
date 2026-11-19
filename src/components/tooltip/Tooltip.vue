@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue'
-import { placementStyle, type PtPlacement } from '../../utils/placement'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { placementFixedStyle, type PtPlacement } from '../../utils/placement'
 
 export type TooltipEffect = 'dark' | 'light'
 
@@ -24,11 +24,13 @@ const props = withDefaults(defineProps<TooltipProps>(), {
   trigger: 'hover'
 })
 
+const triggerRef = ref<HTMLElement>()
 const visible = ref(false)
+const panelStyle = ref<Record<string, string>>({})
 let showTimer: number | undefined
 let hideTimer: number | undefined
 
-const panelStyle = computed(() => placementStyle(props.placement))
+const panelClass = computed(() => `pt-tooltip__panel pt-tooltip__panel--${props.effect}`)
 
 function clearTimers() {
   if (showTimer) window.clearTimeout(showTimer)
@@ -37,11 +39,18 @@ function clearTimers() {
   hideTimer = undefined
 }
 
+function syncPanelPosition() {
+  const el = triggerRef.value
+  if (!el) return
+  panelStyle.value = placementFixedStyle(el.getBoundingClientRect(), props.placement)
+}
+
 function show() {
   if (props.disabled) return
   clearTimers()
   showTimer = window.setTimeout(() => {
     visible.value = true
+    nextTick(syncPanelPosition)
   }, props.showAfter)
 }
 
@@ -57,6 +66,10 @@ function toggle() {
   else show()
 }
 
+watch(visible, (v) => {
+  if (v) nextTick(syncPanelPosition)
+})
+
 onBeforeUnmount(clearTimers)
 
 defineExpose({ show, hide })
@@ -64,6 +77,7 @@ defineExpose({ show, hide })
 
 <template>
   <span
+    ref="triggerRef"
     class="pt-tooltip"
     @mouseenter="trigger === 'hover' ? show() : undefined"
     @mouseleave="trigger === 'hover' ? hide() : undefined"
@@ -72,14 +86,15 @@ defineExpose({ show, hide })
     @click="trigger === 'click' ? toggle() : undefined"
   >
     <slot />
-    <span
-      v-show="visible && !disabled"
-      class="pt-tooltip__panel"
-      :class="`pt-tooltip__panel--${effect}`"
-      :style="panelStyle"
-      role="tooltip"
-    >
-      <slot name="content">{{ content }}</slot>
-    </span>
+    <Teleport to="body">
+      <span
+        v-show="visible && !disabled"
+        :class="panelClass"
+        :style="panelStyle"
+        role="tooltip"
+      >
+        <slot name="content">{{ content }}</slot>
+      </span>
+    </Teleport>
   </span>
 </template>

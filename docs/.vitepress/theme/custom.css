@@ -82,6 +82,7 @@ body,
   font-weight: inherit !important;
   color: inherit;
   background-color: transparent !important;
+  overflow: visible !important;
 }
 .vp-doc .pt-demo .pt-table__table th {
   color: var(--pt-text-color) !important;

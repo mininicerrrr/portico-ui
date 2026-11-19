@@ -1,73 +1,87 @@
-/* Portico UI design tokens — lintel / threshold (门廊 / 门槛) language.
-   Original palette: indigo accent on stone paper and ink type.
-   Not copied from any vendor stylesheet. */
+/* Portico UI design tokens — Clear rhythm / 清晰秩序 (visual v2). */
 
 :root,
 .pt-theme {
-  --pt-color-primary: #3b7ddd;
-  --pt-color-primary-hover: #5a93e4;
-  --pt-color-primary-active: #2f64b1;
-  --pt-color-primary-soft: #ecf3fc;
-  --pt-color-primary-ink: #244f8f;
-  --pt-color-primary-ring: rgb(59 125 221 / 28%);
+  --pt-color-primary: #3473ce;
+  --pt-color-primary-hover: #2f69bd;
+  --pt-color-primary-active: #275aa3;
+  --pt-color-primary-soft: #edf4ff;
+  --pt-color-primary-ink: #275aa3;
+  --pt-color-primary-ring: rgb(52 115 206 / 24%);
+  --pt-color-primary-disabled-bg: #b4c5de;
+  --pt-color-primary-disabled-fg: #ffffff;
+  --pt-color-focus-ring: #dae8fc;
 
   --pt-color-success: #2f9e5c;
   --pt-color-success-hover: #4baf73;
   --pt-color-success-active: #247a47;
   --pt-color-success-soft: #e9f7ef;
-  --pt-color-success-ring: rgb(47 158 92 / 28%);
+  --pt-color-success-ring: rgb(47 158 92 / 24%);
 
   --pt-color-warning: #d89a2a;
   --pt-color-warning-hover: #e0ae52;
   --pt-color-warning-active: #b07c1f;
   --pt-color-warning-soft: #fdf6e8;
-  --pt-color-warning-ring: rgb(216 154 42 / 28%);
+  --pt-color-warning-ring: rgb(216 154 42 / 24%);
 
-  --pt-color-danger: #e05353;
-  --pt-color-danger-hover: #e67474;
-  --pt-color-danger-active: #b43d3d;
+  --pt-color-danger: #c24646;
+  --pt-color-danger-hover: #d15a5a;
+  --pt-color-danger-active: #a33a3a;
   --pt-color-danger-soft: #fdeeee;
-  --pt-color-danger-ring: rgb(224 83 83 / 28%);
+  --pt-color-danger-ring: rgb(194 70 70 / 24%);
 
-  --pt-color-info: #7a8390;
-  --pt-color-info-hover: #929aa5;
-  --pt-color-info-active: #616974;
-  --pt-color-info-soft: #f1f3f5;
-  --pt-color-info-ring: rgb(122 131 144 / 28%);
+  --pt-color-info: #627187;
+  --pt-color-info-hover: #7d899a;
+  --pt-color-info-active: #4f5d70;
+  --pt-color-info-soft: #f1f4f8;
+  --pt-color-info-ring: rgb(98 113 135 / 24%);
 
-  --pt-text-color: #1a1814;
-  --pt-text-regular: #4a453f;
-  --pt-text-secondary: #6a645c;
-  --pt-text-placeholder: #9a948c;
-  --pt-text-disabled: #c4bfb6;
+  --pt-text-color: #192638;
+  --pt-text-regular: #445369;
+  --pt-text-secondary: #627187;
+  --pt-text-placeholder: #7d899a;
+  --pt-text-disabled: #97a2b2;
   --pt-text-inverse: #ffffff;
 
-  --pt-border-color: #c3bdb3;
-  --pt-border-light: #ddd8d0;
-  --pt-border-lighter: #e8e4dc;
-  --pt-border-hover: #9e978c;
+  --pt-border-color: #d5dce6;
+  --pt-border-light: #e9edf3;
+  --pt-border-lighter: #e9edf3;
+  --pt-border-hover: #aab7ca;
+  --pt-border-secondary-hover: #b5c0d0;
+  --pt-border-disabled: #e0e6ee;
+  --pt-border-secondary-disabled: #e1e6ed;
   --pt-border-width: 1px;
-  --pt-border-width-control: 2px;
+  --pt-border-width-control: 1px;
 
   --pt-bg: #ffffff;
-  --pt-bg-page: #f3f1ec;
+  --pt-bg-page: #f6f8fb;
   --pt-bg-overlay: #ffffff;
-  --pt-bg-soft: #efece6;
-  --pt-bg-softer: #f7f5f0;
-  --pt-bg-disabled: #efece6;
-  --pt-overlay: rgb(15 23 42 / 45%);
+  --pt-bg-soft: #f5f7fa;
+  --pt-bg-softer: #f7f9fc;
+  --pt-bg-disabled: #f0f3f7;
+  --pt-bg-control-hover: #f3f6fa;
+  --pt-bg-control-pressed: #e9eef5;
+  --pt-bg-row-hover: #f7f9fc;
+  --pt-bg-row-selected: #edf4ff;
+  --pt-skeleton-fill: #e9edf3;
+  --pt-overlay: rgb(25 38 56 / 45%);
 
-  --pt-radius-s: 2px;
-  --pt-radius: 4px;
-  --pt-radius-l: 4px;
+  --pt-radius-xs: 3px;
+  --pt-radius-s: 6px;
+  --pt-radius: 6px;
+  --pt-radius-l: 8px;
+  --pt-radius-pagination: 5px;
   --pt-radius-pill: 999px;
 
-  --pt-lintel-s: 2px;
-  --pt-lintel: 3px;
-  --pt-lintel-l: 4px;
+  /* Deprecated — v2 does not use lintels; kept at 0 for token compatibility */
+  --pt-lintel-s: 0px;
+  --pt-lintel: 0px;
+  --pt-lintel-l: 0px;
 
-  --pt-font-family: "Noto Sans SC", "Source Han Sans SC", "PingFang SC",
-    "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  --pt-focus-ring-width: 3px;
+
+  --pt-font-family: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
   --pt-font-size-s: 12px;
   --pt-font-size: 14px;
   --pt-font-size-l: 16px;
@@ -94,10 +108,10 @@
   --pt-sidebar-width: 232px;
   --pt-header-height: 56px;
   --pt-form-label-width: 96px;
-  --pt-switch-track: #c4bfb6;
+  --pt-switch-track: #d5dce6;
 
-  --pt-shadow: 0 6px 16px rgb(31 42 55 / 8%), 0 1px 2px rgb(31 42 55 / 6%);
-  --pt-shadow-lg: 0 12px 32px rgb(31 42 55 / 14%);
+  --pt-shadow: 0 4px 12px rgb(25 38 56 / 6%), 0 1px 2px rgb(25 38 56 / 4%);
+  --pt-shadow-lg: 0 8px 24px rgb(25 38 56 / 10%);
   --pt-z-dropdown: 2000;
   --pt-z-tooltip: 2500;
   --pt-z-dialog: 3000;
@@ -108,12 +122,13 @@
 
 html.pt-dark,
 [data-pt-theme="dark"] {
-  --pt-color-primary: #5b9aee;
-  --pt-color-primary-hover: #7aaef2;
-  --pt-color-primary-active: #3d7ed0;
-  --pt-color-primary-soft: #1c2f4a;
-  --pt-color-primary-ink: #1e4a86;
-  --pt-color-primary-ring: rgb(91 154 238 / 28%);
+  --pt-color-primary: #3473ce;
+  --pt-color-primary-hover: #4a8ae0;
+  --pt-color-primary-active: #2f69bd;
+  --pt-color-primary-soft: #203553;
+  --pt-color-primary-ink: #275aa3;
+  --pt-color-primary-ring: rgb(96 152 235 / 28%);
+  --pt-color-focus-ring: #253e60;
 
   --pt-color-success: #4fbf7a;
   --pt-color-success-hover: #6bcb90;
@@ -127,40 +142,51 @@ html.pt-dark,
   --pt-color-warning-soft: #3a2e14;
   --pt-color-warning-ring: rgb(224 178 88 / 28%);
 
-  --pt-color-danger: #ef7a7a;
-  --pt-color-danger-hover: #f39595;
-  --pt-color-danger-active: #d35c5c;
+  --pt-color-danger: #f18b8b;
+  --pt-color-danger-hover: #f5a0a0;
+  --pt-color-danger-active: #e07070;
   --pt-color-danger-soft: #3a1d1d;
-  --pt-color-danger-ring: rgb(239 122 122 / 28%);
+  --pt-color-danger-ring: rgb(241 139 139 / 28%);
+  --pt-color-danger-focus-ring: #4a2b35;
 
-  --pt-color-info: #9aa3ae;
-  --pt-color-info-hover: #b0b7c0;
-  --pt-color-info-active: #7e8793;
+  --pt-color-info: #aebcd0;
+  --pt-color-info-hover: #c0ccdc;
+  --pt-color-info-active: #8e9cb2;
   --pt-color-info-soft: #2a3038;
-  --pt-color-info-ring: rgb(154 163 174 / 28%);
+  --pt-color-info-ring: rgb(174 188 208 / 28%);
 
-  --pt-text-color: #eeeae4;
-  --pt-text-regular: #c9c4bb;
-  --pt-text-secondary: #9a948c;
-  --pt-text-placeholder: #6a645c;
-  --pt-text-disabled: #4a453f;
+  --pt-text-color: #ecf1f9;
+  --pt-text-regular: #ccd6e5;
+  --pt-text-secondary: #aebbd0;
+  --pt-text-placeholder: #a6b4c7;
+  --pt-text-disabled: #8291a5;
   --pt-text-inverse: #ffffff;
 
-  --pt-border-color: #3c3a36;
-  --pt-border-light: #2e2d2a;
-  --pt-border-lighter: #262522;
-  --pt-border-hover: #5c5852;
+  --pt-border-color: #44536a;
+  --pt-border-light: #344257;
+  --pt-border-lighter: #2e3a4c;
+  --pt-border-hover: #5c6d88;
+  --pt-border-secondary-hover: #5c6d88;
+  --pt-border-disabled: #344257;
+  --pt-border-secondary-disabled: #344257;
 
-  --pt-bg: #181a1d;
-  --pt-bg-page: #0d0e11;
-  --pt-bg-overlay: #1e2024;
-  --pt-bg-soft: #222428;
-  --pt-bg-softer: #1b1d20;
-  --pt-bg-disabled: #222428;
-  --pt-overlay: rgb(0 0 0 / 60%);
+  --pt-bg: #1b2737;
+  --pt-bg-page: #111a27;
+  --pt-bg-overlay: #1b2737;
+  --pt-bg-soft: #1f2d40;
+  --pt-bg-softer: #1a2433;
+  --pt-bg-disabled: #1b2533;
+  --pt-bg-control-hover: #243347;
+  --pt-bg-control-pressed: #2a3c54;
+  --pt-bg-row-hover: #1f2d40;
+  --pt-bg-row-selected: #203553;
+  --pt-skeleton-fill: #2b3a4f;
+  --pt-overlay: rgb(0 0 0 / 55%);
   --pt-shadow: 0 8px 24px rgb(0 0 0 / 32%);
   --pt-shadow-lg: 0 16px 40px rgb(0 0 0 / 44%);
-  --pt-switch-track: #5c5852;
+  --pt-switch-track: #44536a;
+
+  --pt-color-focus-border: #6098eb;
 }
 
 [class^="pt-"],
@@ -178,6 +204,7 @@ html.pt-dark,
   font-size: var(--pt-font-size);
   line-height: var(--pt-line-height);
   color: var(--pt-text-color);
+  font-weight: var(--pt-font-weight);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -188,7 +215,7 @@ html.pt-dark,
   flex: none;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.75;
+  stroke-width: 1.6;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -203,6 +230,12 @@ html.pt-dark,
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* Shared focus ring: 1px edge + 3px pale ring */
+.pt-focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 var(--pt-focus-ring-width) var(--pt-color-focus-ring);
 }
 
 @media (prefers-reduced-motion: reduce) {

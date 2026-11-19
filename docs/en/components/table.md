@@ -1,6 +1,6 @@
 # Table
 
-Renders `columns` and `data`, and shows an empty state when there are no rows. Column slots receive `{ row, column, index, value }`. Headers use Medium weight and a stone fill (`--pt-bg-soft`). The current row (`highlight-current-row`) uses a primary-soft fill and a 3px left primary rail.
+Renders `columns` and `data`, and shows an empty state when there are no rows. Column slots receive `{ row, column, index, value }`. v2: Medium headers on `--pt-bg-soft`, 1px row separators, no vertical grid. Hover uses `--pt-bg-row-hover`; current/selected rows use `--pt-bg-row-selected` without a left rail. When `loading` is true, headers and column widths stay fixed; the body shows skeleton bars (dark `--pt-skeleton-fill` #2B3A4F) and a floating status pill with the locale loading label and a 16px spinner—not a blocking full-table mask.
 
 <script setup>
 import { ref } from 'vue'
@@ -63,6 +63,7 @@ const loading = ref(false)
 | prop | Field name on the row | `string` |
 | label | Header text | `string` |
 | width / minWidth | Column width | `string \| number` |
+| showOverflowTooltip | Ellipsis + tooltip for default cells | `boolean` (default `true`; `false` keeps ellipsis, no tooltip) |
 | align | Cell alignment | `'left' \| 'center' \| 'right'` |
 | formatter | Custom display value | `(row, column, cellValue, index) => string \| number` |
 | slot | Named slot for the cell | `string` |
@@ -74,6 +75,26 @@ const loading = ref(false)
 | [column.slot] | Custom cell for a named column |
 | cell | Fallback custom cell for every column without a named slot |
 | empty | Empty state |
+
+## Column width & overflow (integration)
+
+`PtTable` uses **`table-layout: fixed`** and applies widths via **`colgroup`**. Overflowing text must live inside **`.pt-table__cell`** within the `td`; otherwise glyphs can paint into the next column regardless of host layout.
+
+1. Set an explicit **`width`** per column (`px` or `%`) so the sum fits the table container. `minWidth` alone can still squeeze columns when the total exceeds the container.
+2. **Default cells** (no column `slot`, no table-level `cell` slot): ellipsis + tooltip when `showOverflowTooltip` is true (default). Set `false` to opt out of the tooltip only.
+3. **Custom slots**: the library does not auto-ellipsis; wrap content with **`PtTableEllipsisCell`** (same pattern as a host-local ellipsis helper).
+4. Do **not** fix collisions with global `.pt-table td { overflow: visible }` or display overrides—fix widths and in-cell overflow.
+5. **Keyboard (0.1.1+)**: only **actually truncated** default cells join the tab order and show the full text on focus (`Escape` dismisses). Non-truncated cells are not tab stops. Sortable headers accept **Enter / Space** with `aria-sort`.
+6. **Escape hatch**: `showOverflowTooltip: false` on a column or on `PtTableEllipsisCell` keeps ellipsis without the overflow tooltip.
+7. **`PtInput` has no `loading` prop**; use the `suffix` slot for async spinners.
+
+```vue
+<pt-table :columns="columns" :data="rows">
+  <template #title="{ value }">
+    <pt-table-ellipsis-cell :content="value" />
+  </template>
+</pt-table>
+```
 
 ## Sorting, loading, and virtual scroll
 

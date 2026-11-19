@@ -2,7 +2,7 @@
 
 Triggers an action. Supports semantic types, plain and text styles, sizes, disabled and loading states. The control is a native button and can be activated with the keyboard.
 
-Filled primary and chromatic buttons use a 2px radius and a 3px left lintel (`--pt-color-primary-ink` on primary; the type's `-active` color otherwise). Default and plain buttons use a 2px border and no lintel. Text buttons have no border or lintel and a soft hover fill. Focus is a hard 2px offset ring, without a soft glow. Disabled and loading states use 0.55 opacity; the lintel remains.
+v2: 6px radius, 1px neutral border on default buttons or solid primary fill (`#3473CE`), no left lintel. Text buttons use soft gray hover/press fills. Focus is a 1px primary edge plus a 3px pale ring. Disabled uses explicit colors, not global opacity; loading keeps a 16px spinner without width shift.
 
 <script setup>
 import { ref } from 'vue'

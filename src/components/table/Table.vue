@@ -3,6 +3,7 @@ import { computed, ref, useSlots, watch } from 'vue'
 import { useLocale } from '../../locale'
 import PtSpinner from '../icons/PtSpinner.vue'
 import PtIcon from '../icons/PtIcon.vue'
+import TableOverflowCell from './TableOverflowCell.vue'
 import { iconChevron, iconChevronUp } from '../icons/icons'
 
 export type TableSortOrder = 'asc' | 'desc' | null
@@ -17,6 +18,8 @@ export interface TableColumn {
   slot?: string
   sortable?: boolean | 'custom'
   sortMethod?: (a: Record<string, unknown>, b: Record<string, unknown>) => number
+  /** Ellipsize overflowing text; show full value in tooltip on hover when true. */
+  showOverflowTooltip?: boolean
 }
 
 export interface TableProps {
@@ -55,7 +58,9 @@ const sortOrder = ref<TableSortOrder>(null)
 const currentKey = ref<string | null>(null)
 
 const emptyLabel = computed(() => props.emptyText ?? t('table.emptyText'))
-const isEmpty = computed(() => !props.data.length)
+const skeletonRowCount = 5
+const skeletonBars = ['92%', '68%', '54%', '76%', '40%']
+const isEmpty = computed(() => !props.data.length && !props.loading)
 const maxHeightStyle = computed(() => {
   if (props.maxHeight == null && !props.virtual) return undefined
   const raw = props.maxHeight ?? 400
@@ -134,6 +139,16 @@ function cellValue(row: Record<string, unknown>, column: TableColumn, index: num
   return column.formatter ? column.formatter(row, column, value, index) : value
 }
 
+function cellText(row: Record<string, unknown>, column: TableColumn, index: number) {
+  const value = cellValue(row, column, index)
+  if (value == null) return ''
+  return String(value)
+}
+
+function overflowTooltip(column: TableColumn) {
+  return column.showOverflowTooltip !== false
+}
+
 function hasSlot(name?: string) {
   return Boolean(name && slots[name])
 }
@@ -150,6 +165,22 @@ function toggleSort(column: TableColumn) {
     sortOrder.value = null
   }
   emit('sort-change', { prop: column.prop, order: sortOrder.value })
+}
+
+function onSortKeydown(column: TableColumn, event: KeyboardEvent) {
+  if (!column.sortable) return
+  if (event.key !== 'Enter' && event.key !== ' ') return
+  event.preventDefault()
+  toggleSort(column)
+}
+
+function headerTabIndex(column: TableColumn) {
+  return column.sortable ? 0 : undefined
+}
+
+function headerAriaSort(column: TableColumn) {
+  if (!column.sortable || sortProp.value !== column.prop || !sortOrder.value) return undefined
+  return sortOrder.value === 'asc' ? 'ascending' : 'descending'
 }
 
 function onRowClick(row: Record<string, unknown>, index: number) {
@@ -186,6 +217,9 @@ watch(
       @scroll="onScroll"
     >
       <table class="pt-table__table">
+        <colgroup>
+          <col v-for="column in columns" :key="`col-${column.prop}`" :style="widthStyle(column)" />
+        </colgroup>
         <thead>
           <tr>
             <th
@@ -193,9 +227,11 @@ watch(
               :key="column.prop"
               scope="col"
               :style="widthStyle(column)"
+              :tabindex="headerTabIndex(column)"
               :class="{ 'is-sortable': column.sortable, [`is-sort-${sortOrder}`]: sortProp === column.prop && sortOrder }"
-              :aria-sort="sortProp === column.prop ? (sortOrder === 'asc' ? 'ascending' : sortOrder === 'desc' ? 'descending' : undefined) : undefined"
-              @click="toggleSort(column)"
+              :aria-sort="headerAriaSort(column)"
+              @click="column.sortable ? toggleSort(column) : undefined"
+              @keydown="onSortKeydown(column, $event)"
             >
               <span class="pt-table__th">
                 {{ column.label }}
@@ -207,7 +243,22 @@ watch(
             </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody v-if="loading" class="pt-table__body--loading">
+          <tr
+            v-for="rowIndex in skeletonRowCount"
+            :key="`skeleton-${rowIndex}`"
+            class="pt-table__skeleton-row"
+            aria-hidden="true"
+          >
+            <td v-for="(column, columnIndex) in columns" :key="column.prop" :style="widthStyle(column)">
+              <span
+                class="pt-table__skeleton-cell"
+                :style="{ width: skeletonBars[(rowIndex + columnIndex) % skeletonBars.length] }"
+              />
+            </td>
+          </tr>
+        </tbody>
+        <tbody v-else>
           <tr v-if="virtual && topSpacer" class="pt-table__spacer" aria-hidden="true">
             <td :colspan="columns.length" :style="{ height: `${topSpacer}px`, padding: 0, border: 0 }" />
           </tr>
@@ -220,23 +271,28 @@ watch(
             <td v-for="column in columns" :key="column.prop" :style="widthStyle(column)">
               <slot v-if="hasSlot(column.slot)" :name="column.slot" :row="entry.row" :column="column" :index="entry.index" :value="entry.row[column.prop]" />
               <slot v-else-if="$slots.cell" name="cell" :row="entry.row" :column="column" :index="entry.index" :value="entry.row[column.prop]" />
-              <template v-else>{{ cellValue(entry.row, column, entry.index) }}</template>
+              <table-overflow-cell
+                v-else-if="overflowTooltip(column)"
+                :text="cellText(entry.row, column, entry.index)"
+                placement="top"
+              />
+              <span v-else class="pt-table__cell">{{ cellText(entry.row, column, entry.index) }}</span>
             </td>
           </tr>
           <tr v-if="virtual && bottomSpacer" class="pt-table__spacer" aria-hidden="true">
             <td :colspan="columns.length" :style="{ height: `${bottomSpacer}px`, padding: 0, border: 0 }" />
           </tr>
-          <tr v-if="isEmpty && !loading">
+          <tr v-if="isEmpty">
             <td :colspan="columns.length" class="pt-table__empty">
               <slot name="empty">{{ emptyLabel }}</slot>
             </td>
           </tr>
         </tbody>
       </table>
-    </div>
-    <div v-if="loading" class="pt-table__loading" role="status" :aria-label="t('table.loadingText')">
-      <pt-spinner />
-      <span>{{ t('table.loadingText') }}</span>
+      <div v-if="loading" class="pt-table__loading-status" role="status" :aria-label="t('table.loadingText')">
+        <pt-spinner />
+        <span>{{ t('table.loadingText') }}</span>
+      </div>
     </div>
   </div>
 </template>

@@ -1,6 +1,6 @@
 # Pagination
 
-Compose total, page sizes, pager, and jumper through `layout`. Copy comes from the locale pack. Pager items use a 2px radius and 2px border, not pills. The active item is a primary fill with a 3px left ink lintel.
+Pager composition via `layout`. v2: 30×30 items, 5px radius, 1px border; active page solid primary, no lintel.
 
 ## Basic usage
 

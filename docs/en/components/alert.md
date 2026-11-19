@@ -1,6 +1,6 @@
 # Alert
 
-Inline feedback with four semantic types, a title, description, and optional close button. The surface uses a 4px radius, a 1px border, and a 3px left rail in the type color (danger on destructive alerts).
+Inline feedback with four semantic types, title, description, and optional close. v2: 8px radius, 1px border, semantic soft fills, no left rail.
 
 ## Basic usage
 

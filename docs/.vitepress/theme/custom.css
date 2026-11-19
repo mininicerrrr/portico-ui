@@ -1,9 +1,17 @@
 :root {
-  --vp-c-brand-1: #3b7ddd;
-  --vp-c-brand-2: #5a93e4;
-  --vp-c-brand-3: #2f64b1;
-  --vp-c-brand-soft: #ecf3fc;
-  --vp-home-hero-name-color: #3b7ddd;
+  --vp-c-brand-1: #3473ce;
+  --vp-c-brand-2: #2f69bd;
+  --vp-c-brand-3: #275aa3;
+  --vp-c-brand-soft: #edf4ff;
+  --vp-home-hero-name-color: #3473ce;
+}
+
+html,
+body,
+.VPDoc,
+.VPHome,
+.pt-demo {
+  font-family: "Noto Sans SC", var(--vp-font-family-base);
 }
 
 .pt-demo {
@@ -11,7 +19,7 @@
   border: 1px solid var(--vp-c-divider);
   border-radius: 10px;
   background: var(--vp-c-bg);
-  overflow: hidden;
+  overflow: visible;
 }
 .pt-demo__title {
   padding: 10px 16px;
@@ -22,12 +30,118 @@
 .pt-demo__body {
   padding: 20px;
 }
-.pt-demo .pt-space,
-.pt-demo .pt-button,
-.pt-demo .pt-input,
-.pt-demo .pt-select,
-.pt-demo .pt-form {
-  font-family: var(--pt-font-family);
+.pt-demo .pt-theme,
+.pt-demo .pt-theme .pt-button,
+.pt-demo .pt-theme .pt-input,
+.pt-demo .pt-theme .pt-input__inner,
+.pt-demo .pt-theme .pt-table,
+.pt-demo .pt-theme .pt-select,
+.pt-demo .pt-theme .pt-form {
+  font-family: "Noto Sans SC", var(--pt-font-family) !important;
 }
 
 .VPHome .VPHero .name { letter-spacing: -0.02em; }
+
+/* Neutralize VitePress .vp-doc table rules inside component demos (display:block, zebra, cell grid). */
+.vp-doc .pt-demo .pt-table {
+  width: 100%;
+  margin: 0;
+}
+.vp-doc .pt-demo .pt-table__wrap {
+  display: block;
+  width: 100%;
+}
+.vp-doc .pt-demo table.pt-table__table {
+  display: table;
+  width: 100%;
+  margin: 0;
+  overflow: visible;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+.vp-doc .pt-demo .pt-table__table thead,
+.vp-doc .pt-demo .pt-table__table tbody {
+  display: table-row-group;
+}
+.vp-doc .pt-demo .pt-table__table tr {
+  display: table-row;
+  background: transparent !important;
+  border-top: none !important;
+  transition: none;
+}
+.vp-doc .pt-demo .pt-table__table tbody tr:nth-child(2n) {
+  background: transparent !important;
+}
+.vp-doc .pt-demo .pt-table__table th,
+.vp-doc .pt-demo .pt-table__table td {
+  display: table-cell;
+  border: none !important;
+  border-bottom: var(--pt-border-width) solid var(--pt-border-light) !important;
+  padding: 10px 12px !important;
+  font-size: var(--pt-font-size) !important;
+  font-weight: inherit !important;
+  color: inherit;
+  background-color: transparent !important;
+  overflow: visible !important;
+}
+.vp-doc .pt-demo .pt-table__table th {
+  color: var(--pt-text-color) !important;
+  font-weight: var(--pt-font-weight-medium) !important;
+  background-color: var(--pt-bg-soft) !important;
+}
+.vp-doc .pt-demo .pt-table__table tbody tr:hover td {
+  background-color: var(--pt-bg-row-hover) !important;
+}
+.vp-doc .pt-demo .pt-table__table tbody tr.is-current td,
+.vp-doc .pt-demo .pt-table__table tbody tr.is-selected td {
+  background-color: var(--pt-bg-row-selected) !important;
+}
+.vp-doc .pt-demo .pt-button--primary,
+.vp-doc .pt-demo .pt-button--primary .pt-button__content,
+.vp-doc .pt-demo .pt-button--primary .pt-button__spinner {
+  color: var(--pt-text-inverse) !important;
+}
+.vp-doc .pt-demo .pt-button--primary:active,
+.vp-doc .pt-demo .pt-button--primary:active .pt-button__content {
+  color: var(--pt-text-inverse) !important;
+}
+.vp-doc .pt-demo .pt-table__body--loading .pt-table__skeleton-row td {
+  background-color: transparent !important;
+}
+.vp-doc .pt-demo .pt-table__cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.vp-doc .pt-demo .pt-table__table th {
+  overflow: visible;
+  max-width: none;
+}
+.vp-doc .pt-demo .pt-table__table td {
+  overflow: hidden;
+  max-width: 0;
+}
+.vp-doc .pt-demo .pt-table__table td:focus-within:has(.pt-table__cell--overflow-focusable) {
+  overflow: visible !important;
+  z-index: 2;
+}
+.vp-doc .pt-demo .pt-table__table td:focus-within:has(.pt-table__cell--overflow-focusable:focus-visible) {
+  outline: var(--pt-focus-ring-width) solid var(--pt-color-primary);
+  outline-offset: -2px;
+  border-radius: 2px;
+}
+.vp-doc .pt-demo .pt-table__cell--overflow-focusable:focus-visible {
+  outline: none;
+}
+.vp-doc .pt-demo .v2-workbench,
+.vp-doc .pt-demo .v2-dark-surface {
+  width: 100%;
+  max-width: 864px;
+}
+.vp-doc .pt-demo .v2-dark-surface {
+  padding: 20px;
+  border-radius: 8px;
+  background: var(--pt-bg-page);
+  color: var(--pt-text-color);
+  border: var(--pt-border-width) solid var(--pt-border-light);
+}

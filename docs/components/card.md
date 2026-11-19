@@ -1,6 +1,6 @@
 # Card 卡片
 
-用于承载一块相关内容。卡片圆角 4px，1px 描边，顶部有 2px 的 `--pt-color-primary-ink` 门楣。
+用于承载一块相关内容。v2：1px 描边、圆角 8px（`--pt-radius-l`），无顶部门楣；可选阴影由 `shadow` 属性控制。
 
 ## 基础用法
 

@@ -76,12 +76,12 @@ Call these on a `ref` to `PtForm`.
 | required | Mark as required | `boolean` | `false` |
 | rules | Field-level rules | `FormRule \| FormRule[]` | — |
 | error | External error message | `string` | — |
-| validateStatus | Explicit status; success shows only when set to success | `'error' \| 'success' \| ''` | — |
+| validateStatus | Visual validation state | `'error' \| 'success' \| ''` | `''` |
 | labelWidth | Override the form label width | `string` | — |
 | showMessage | Show the error message | `boolean` | `true` |
 | size | Override the form size | `'large' \| 'default' \| 'small'` | — |
 
 ## Success state
 
-`PtFormItem` accepts an optional `validateStatus` (`'error' | 'success' | ''`). The success border appears only when `validateStatus="success"` (a 2px success border, with no glow or left rail); a passing validation does not enable it automatically. Error uses a 2px danger border plus a 3px left rail. The default label width uses `--pt-form-label-width` (96px), and labels are Medium weight.
+`PtFormItem` optional `validateStatus` (`'error' | 'success' | ''`). v2: success is a 1px success border only when `validateStatus="success"`; errors use 1px danger border plus message text (no left rail). Label width default `--pt-form-label-width` (96px), Medium weight.
 

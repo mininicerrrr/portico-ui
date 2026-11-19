@@ -1,6 +1,6 @@
 # Portico UI
 
-面向后台与表单场景的小型 Vue 3 组件库，采用门廊 / 门槛视觉语言（门楣、石色纸面、墨色文字）。组件带有类型定义，可通过 CSS 变量定制主题，并配有可本地运行的 VitePress 文档站。
+面向后台与表单场景的小型 Vue 3 组件库，采用 **清晰秩序（visual v2）**：1px 描边、6px 圆角、行动蓝与安静层级（无门楣/色轨）。组件带有类型定义，可通过 CSS 变量定制主题，并配有可本地运行的 VitePress 文档站。
 
 [English](./README.md) | 简体中文
 
@@ -8,7 +8,7 @@
 
 - Vue 3 + Vite + TypeScript，库模式构建
 - 支持插件全量注册（`app.use(PorticoUI)`）与按需引入
-- CSS 变量主题：主色、门楣、石色纸面、成功、警告、危险、信息，以及 2px/4px 圆角、字号与间距
+- CSS 变量主题：行动蓝 `#3473CE`、中性描边、行悬停/选中、语义色，以及 6px 控件圆角、字号与间距
 - 默认亮色，并提供完整暗色主题（`html.pt-dark` 或 `[data-pt-theme="dark"]`）
 - 组件前缀：`Pt`（如 `PtButton`、`PtInput`）
 - npm 包名：`portico-ui`

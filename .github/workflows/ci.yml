@@ -7,7 +7,8 @@ on:
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    # Playwright 1.50.x does not ship ubuntu-26.04 browser deps; pin 24.04 for chromium --with-deps.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -15,7 +16,12 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npx playwright install chromium --with-deps
       - run: npm test
       - run: npm run typecheck
       - run: npm run build
       - run: npm run docs:build
+      - run: npm run docs:preview-smoke
+      - name: Default vitepress preview base-path probe (expected limitation if assets 404)
+        run: npm run docs:preview-vitepress-default
+        continue-on-error: true

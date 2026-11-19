@@ -1,6 +1,6 @@
 # Tag
 
-A compact status or category mark. Closable tags emit a `close` event; the parent decides whether to remove them. Tags use a 2px radius and a 2px left color bar by type. The `round` prop is kept for compatibility but does not produce a pill in this visual language.
+A compact status or category mark. v2: 6px radius, light/solid/plain effects, no left color bar. `round` kept for API compatibility but does not produce pills.
 
 <script setup>
 import { ref } from 'vue'
@@ -29,7 +29,7 @@ function remove(name) {
 | effect | Fill style | `'light' \| 'solid' \| 'plain'` | `'light'` |
 | size | Size | `'large' \| 'default' \| 'small'` | `'default'` |
 | closable | Show a close button | `boolean` | `false` |
-| round | Kept for compatibility; tags stay at a 2px radius and are not pills | `boolean` | `false` |
+| round | Kept for compatibility; v2 tags stay 6px radius, not pills | `boolean` | `false` |
 
 ## Events
 

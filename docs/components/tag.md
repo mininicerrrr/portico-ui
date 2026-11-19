@@ -1,6 +1,6 @@
 # Tag 标签
 
-用于标记状态或分类。标签圆角为 2px，左侧有 2px 类型色条。`round` 属性仍可用于兼容，但不会做成胶囊形。
+用于标记状态或分类。v2：6px 圆角，light/solid/plain 效果，无左侧色条。`round` 仅作 API 兼容，不会变成胶囊。
 
 <script setup>
 import { ref } from 'vue'
@@ -34,4 +34,4 @@ function remove(index) {
 | effect | 风格 | `'light' \| 'solid' \| 'plain'` | `'light'` |
 | size | 尺寸 | `'large' \| 'default' \| 'small'` | `'default'` |
 | closable | 可关闭 | `boolean` | `false` |
-| round | 保留的兼容属性；本视觉方案中标签仍为 2px 圆角，不会变成胶囊 | `boolean` | `false` |
+| round | 保留的兼容属性；v2 标签圆角 6px，不会变成胶囊 | `boolean` | `false` |

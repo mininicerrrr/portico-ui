@@ -1,6 +1,6 @@
 # Message
 
-An imperative toast that appears at the top of the page and dismisses after about 3 seconds. Error messages use `role="alert"`; other types use `role="status"`. The panel uses a 4px radius and a 3px left color bar by type.
+Imperative toast at the top of the page. v2: 6px radius, 1px border, no left type bar.
 
 <script setup>
 import { message } from 'portico-ui'

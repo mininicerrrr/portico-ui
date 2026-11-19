@@ -1,6 +1,6 @@
 # Input
 
-Text field with optional clear and password toggle. Labels from `PtFormItem` are associated through `id`. Validation errors set `aria-invalid` and `aria-describedby`. Controls use a 2px radius and 2px border. Focus is a 2px primary border with a hard offset ring and no soft glow. Error adds a 3px left danger rail; success is a 2px success border only.
+Text field with optional clear and password toggle. Labels from `PtFormItem` are associated through `id`. Validation errors set `aria-invalid` and `aria-describedby`. v2: 6px radius, 1px neutral border, focus uses a 1px primary edge and 3px pale ring. Errors use border and copy without a left rail; dark error keeps a dark fill with `#F18B8B` border/helper text.
 
 <script setup>
 import { ref } from 'vue'

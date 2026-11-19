@@ -1,6 +1,6 @@
 # Menu 菜单
 
-侧栏或顶栏导航。垂直模式宽度为 `--pt-sidebar-width`（232px），折叠后为 56px。菜单文案为 Medium 字重；选中项为 3px 主色左轨加主色浅底。
+侧栏或顶栏导航。垂直模式 `--pt-sidebar-width`（232px），折叠 56px。v2 选中项使用 `--pt-bg-row-selected` 浅底，无左侧轨。
 
 ## 基础用法
 

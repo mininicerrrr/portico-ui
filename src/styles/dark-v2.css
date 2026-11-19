@@ -1,0 +1,56 @@
+/* Dark-mode supplements for visual v2 (error / disabled / focus). */
+
+html.pt-dark .pt-form-item.is-error .pt-input.is-focus,
+[data-pt-theme="dark"] .pt-form-item.is-error .pt-input.is-focus,
+html.pt-dark .pt-input.is-error.is-focus,
+[data-pt-theme="dark"] .pt-input.is-error.is-focus,
+html.pt-dark .pt-form-item.is-error .pt-select.is-opened .pt-select__control,
+[data-pt-theme="dark"] .pt-form-item.is-error .pt-select.is-opened .pt-select__control,
+html.pt-dark .pt-select.is-error .pt-select__control:focus-visible,
+[data-pt-theme="dark"] .pt-select.is-error .pt-select__control:focus-visible,
+html.pt-dark .pt-textarea.is-error.is-focus,
+[data-pt-theme="dark"] .pt-textarea.is-error.is-focus,
+html.pt-dark .pt-date-picker.is-error .pt-date-picker__control:focus-visible,
+[data-pt-theme="dark"] .pt-date-picker.is-error .pt-date-picker__control:focus-visible {
+  border-color: var(--pt-color-danger);
+  box-shadow: 0 0 0 var(--pt-focus-ring-width) var(--pt-color-danger-focus-ring);
+}
+
+html.pt-dark .pt-input.is-disabled,
+[data-pt-theme="dark"] .pt-input.is-disabled,
+html.pt-dark .pt-select.is-disabled .pt-select__control,
+[data-pt-theme="dark"] .pt-select.is-disabled .pt-select__control,
+html.pt-dark .pt-textarea.is-disabled,
+[data-pt-theme="dark"] .pt-textarea.is-disabled,
+html.pt-dark .pt-input-number.is-disabled,
+[data-pt-theme="dark"] .pt-input-number.is-disabled,
+html.pt-dark .pt-date-picker.is-disabled .pt-date-picker__control,
+[data-pt-theme="dark"] .pt-date-picker.is-disabled .pt-date-picker__control {
+  background: var(--pt-bg-disabled);
+  border-color: var(--pt-border-disabled);
+  color: var(--pt-text-disabled);
+}
+
+html.pt-dark .pt-input__inner:disabled,
+[data-pt-theme="dark"] .pt-input__inner:disabled {
+  color: var(--pt-text-disabled);
+}
+
+html.pt-dark .pt-button.is-disabled,
+html.pt-dark .pt-button:disabled,
+[data-pt-theme="dark"] .pt-button.is-disabled,
+[data-pt-theme="dark"] .pt-button:disabled {
+  opacity: 1;
+}
+
+html.pt-dark .pt-switch.is-disabled .pt-switch__track,
+[data-pt-theme="dark"] .pt-switch.is-disabled .pt-switch__track {
+  opacity: 1;
+  background: var(--pt-bg-disabled);
+  border: var(--pt-border-width) solid var(--pt-border-disabled);
+}
+
+html.pt-dark .pt-form-item__error,
+[data-pt-theme="dark"] .pt-form-item__error {
+  color: var(--pt-color-danger);
+}

@@ -1,6 +1,6 @@
 # Select
 
-A basic single-select dropdown. Bind `v-model`, pass `options` or `PtOption` children, and optionally disable the control. Keyboard: Enter or Space opens the list, arrow keys move the highlight, Enter confirms, Escape closes it. The trigger uses a 2px radius and 2px border; the open state is a 2px primary border with no soft glow. The panel is 4px radius; a selected option has a 3px left primary rail and a primary-soft fill.
+Single-select dropdown. v2: 6px trigger, 1px border, 3px focus ring when open; selected option soft fill, no left rail.
 
 <script setup>
 import { ref } from 'vue'

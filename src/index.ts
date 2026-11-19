@@ -13,7 +13,7 @@ import { PtTag } from './components/tag'
 import { PtCard } from './components/card'
 import { PtSpace } from './components/space'
 import { PtDivider } from './components/divider'
-import { PtTable } from './components/table'
+import { PtTable, PtTableEllipsisCell } from './components/table'
 import { message } from './components/message'
 import { PtTextarea } from './components/textarea'
 import { PtInputNumber } from './components/input-number'
@@ -53,6 +53,7 @@ export const components = [
   PtSpace,
   PtDivider,
   PtTable,
+  PtTableEllipsisCell,
   PtTextarea,
   PtInputNumber,
   PtBadge,
@@ -121,8 +122,8 @@ export { PtSpace } from './components/space'
 export type { SpaceProps, SpaceSize } from './components/space'
 export { PtDivider } from './components/divider'
 export type { DividerProps } from './components/divider'
-export { PtTable } from './components/table'
-export type { TableProps, TableColumn, TableSortOrder } from './components/table'
+export { PtTable, PtTableEllipsisCell } from './components/table'
+export type { TableProps, TableColumn, TableSortOrder, TableEllipsisCellProps } from './components/table'
 export { PtTextarea } from './components/textarea'
 export type { TextareaProps, TextareaAutosize } from './components/textarea'
 export { PtInputNumber } from './components/input-number'

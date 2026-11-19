@@ -54,10 +54,12 @@
 .pt-button--primary:active {
   background: var(--pt-color-primary-active);
   color: var(--pt-text-inverse);
+  -webkit-text-fill-color: var(--pt-text-inverse);
 }
 .pt-button--primary:active .pt-button__content,
 .pt-button--primary:active .pt-button__spinner {
   color: var(--pt-text-inverse);
+  -webkit-text-fill-color: var(--pt-text-inverse);
 }
 .pt-button--success { background: var(--pt-color-success); }
 .pt-button--success:hover { background: var(--pt-color-success-hover); }

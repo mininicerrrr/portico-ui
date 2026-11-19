@@ -100,7 +100,8 @@ const shots = [
         throw new Error(`Pressed primary label must stay --pt-text-inverse (white), got ${fg}`)
       }
     },
-    state: 'Primary :active via Playwright mouse.down() on #v2-btn-pressed-target; computed bg darker than idle',
+    state: 'Primary :active via Playwright mouse.down(); viewport clip (element shot skips :active paint)',
+    viewportClip: true,
     metrics: ['pressedButton']
   },
   {
@@ -166,14 +167,16 @@ const shots = [
         .evaluate((el) => getComputedStyle(el).backgroundColor)
       if (bg !== 'rgb(237, 244, 255)') throw new Error(`Current row expected #EDF4FF, got ${bg}`)
     },
-    state: 'Descending sort on 成员 + current row on row 2 (#EDF4FF)',
+    state: 'Descending sort + current row 2 (#EDF4FF); viewport clip',
+    viewportClip: true,
     metrics: ['sortHeader', 'currentRow']
   },
   {
     file: 'live-v2-table-hover.png',
     anchor: '#v2-table-hover',
     setup: async (page) => {
-      await page.locator('#v2-table-hover-target tbody tr').first().hover()
+      const cell = page.locator('#v2-table-hover-target tbody tr').first().locator('td').first()
+      await cell.hover()
     },
     verify: async (page) => {
       const bg = await page
@@ -184,7 +187,8 @@ const shots = [
         .evaluate((el) => getComputedStyle(el).backgroundColor)
       if (bg !== 'rgb(247, 249, 252)') throw new Error(`Hover row expected #F7F9FC, got ${bg}`)
     },
-    state: 'Row hover background on row 1 (#F7F9FC)',
+    state: 'Row hover background on row 1 (#F7F9FC); viewport clip with pointer over row',
+    viewportClip: true,
     metrics: ['hoverRow']
   },
   {
@@ -601,7 +605,6 @@ async function main() {
     await frameDemo(page, shot.anchor)
     if (shot.setup) await shot.setup(page)
     if (shot.verify) await shot.verify(page)
-    await page.waitForTimeout(shot.teardown ? 80 : 300)
     await assertBasics(page, shot)
     const metrics = await measure(page, shot.anchor, shot.metrics)
     const loc = page.locator(shot.anchor)
@@ -609,7 +612,16 @@ async function main() {
     let pngSize = null
     let captureFraming = 'element: anchor only'
     let unionMeta = null
-    if (shot.unionCapture) {
+  if (shot.viewportClip) {
+      const box = await loc.boundingBox()
+      if (!box) throw new Error(`missing bbox for ${shot.anchor}`)
+      await page.screenshot({
+        path: filePath,
+        clip: { x: box.x, y: box.y, width: box.width, height: box.height }
+      })
+      captureFraming = 'viewport clip while pointer/focus state held'
+      pngSize = { width: Math.round(box.width), height: Math.round(box.height) }
+    } else if (shot.unionCapture) {
       unionMeta = await captureUnion(page, shot.anchor, filePath, shot.panelMatch)
       captureFraming = 'viewport clip: demo anchor ∪ teleported tooltip panel'
       pngSize = {

@@ -21,11 +21,17 @@ const members = [
 /** 584px 内容宽 — 与捕获 manifest 对齐 */
 const columns584 = [
   { prop: 'name', label: '成员', width: 148, sortable: true, showOverflowTooltip: true },
-  { prop: 'email', label: '邮箱', width: 168, showOverflowTooltip: true },
+  { prop: 'email', label: '邮箱', width: 160, showOverflowTooltip: true },
   { prop: 'role', label: '角色', width: 88 },
   { prop: 'status', label: '状态', width: 80 },
-  { prop: 'updated', label: '更新时间', width: 100, sortable: true, align: 'right' },
+  { prop: 'updated', label: '更新时间', width: 108, sortable: true, align: 'right' },
 ]
+const columnsHover = columns584.map((col) =>
+  col.prop === 'email' ? { ...col, showOverflowTooltip: false } : col
+)
+const columnsSorted = columns584.map((col) =>
+  col.prop === 'email' ? { ...col, showOverflowTooltip: false } : col
+)
 const columnsWide = [
   { prop: 'name', label: '成员', width: 220, sortable: true, showOverflowTooltip: true },
   { prop: 'email', label: '邮箱', width: 240, showOverflowTooltip: true },
@@ -180,7 +186,7 @@ const asyncInput = ref('异步校验中')
   <div class="pt-theme pt-root v2-shot-584">
     <pt-table
       id="v2-table-sorted-target"
-      :columns="columns584"
+      :columns="columnsSorted"
       :data="members"
       highlight-current-row
       style="width: 100%"
@@ -192,7 +198,7 @@ const asyncInput = ref('异步校验中')
   <div class="pt-theme pt-root v2-shot-584">
     <pt-table
       id="v2-table-hover-target"
-      :columns="columns584"
+      :columns="columnsHover"
       :data="members.slice(0, 3)"
       style="width: 100%"
     />
@@ -218,7 +224,7 @@ const asyncInput = ref('异步校验中')
 </DemoBox>
 
 <DemoBox title="暗色：工具栏 + 全宽表加载" id="v2-dark">
-  <div class="v2-dark-surface pt-theme pt-root v2-shot-584" data-pt-theme="dark">
+  <div class="v2-dark-surface pt-theme pt-root v2-shot-600" data-pt-theme="dark">
     <pt-space wrap :size="12" style="margin-bottom: 12px">
       <pt-input placeholder="搜索姓名或邮箱" style="width: 220px" />
       <pt-select
@@ -240,6 +246,11 @@ const asyncInput = ref('异步校验中')
 }
 .v2-shot-820 {
   width: 820px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.v2-shot-600 {
+  width: 600px;
   max-width: 100%;
   box-sizing: border-box;
 }

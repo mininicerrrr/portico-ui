@@ -113,7 +113,10 @@ body,
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.vp-doc .pt-demo .pt-table__table th,
+.vp-doc .pt-demo .pt-table__table th {
+  overflow: visible;
+  max-width: none;
+}
 .vp-doc .pt-demo .pt-table__table td {
   overflow: hidden;
   max-width: 0;

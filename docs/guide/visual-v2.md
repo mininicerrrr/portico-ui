@@ -224,7 +224,7 @@ const asyncInput = ref('异步校验中')
 </DemoBox>
 
 <DemoBox title="暗色：工具栏 + 全宽表加载" id="v2-dark">
-  <div class="v2-dark-surface pt-theme pt-root v2-shot-600" data-pt-theme="dark">
+  <div class="v2-dark-surface pt-theme pt-root v2-shot-640" data-pt-theme="dark">
     <pt-space wrap :size="12" style="margin-bottom: 12px">
       <pt-input placeholder="搜索姓名或邮箱" style="width: 220px" />
       <pt-select
@@ -251,6 +251,11 @@ const asyncInput = ref('异步校验中')
 }
 .v2-shot-600 {
   width: 600px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.v2-shot-640 {
+  width: 640px;
   max-width: 100%;
   box-sizing: border-box;
 }

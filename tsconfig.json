@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "jsx": "preserve",
+    "declaration": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["vite/client"],
+    "baseUrl": ".",
+    "paths": {
+      "portico-ui": ["./src/index.ts"]
+    }
+  },
+  "include": ["src/**/*", "tests/**/*", "env.d.ts"],
+  "exclude": ["dist", "node_modules", "docs/.vitepress/cache", "docs/.vitepress/dist"]
+}

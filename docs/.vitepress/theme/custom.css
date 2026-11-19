@@ -1,0 +1,33 @@
+:root {
+  --vp-c-brand-1: #3b7ddd;
+  --vp-c-brand-2: #5a93e4;
+  --vp-c-brand-3: #2f64b1;
+  --vp-c-brand-soft: #ecf3fc;
+  --vp-home-hero-name-color: #3b7ddd;
+}
+
+.pt-demo {
+  margin: 16px 0 24px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 10px;
+  background: var(--vp-c-bg);
+  overflow: hidden;
+}
+.pt-demo__title {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--vp-c-divider);
+  font-size: 13px;
+  color: var(--vp-c-text-2);
+}
+.pt-demo__body {
+  padding: 20px;
+}
+.pt-demo .pt-space,
+.pt-demo .pt-button,
+.pt-demo .pt-input,
+.pt-demo .pt-select,
+.pt-demo .pt-form {
+  font-family: var(--pt-font-family);
+}
+
+.VPHome .VPHero .name { letter-spacing: -0.02em; }

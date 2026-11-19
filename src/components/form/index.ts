@@ -1,0 +1,5 @@
+export { default as PtForm } from './Form.vue'
+export { default as PtFormItem } from './FormItem.vue'
+export type { FormProps } from './Form.vue'
+export type { FormItemProps } from './FormItem.vue'
+export type { FormRule, FormRules, FormValidateCallback, FormValidationError } from './types'

@@ -1,0 +1,176 @@
+/* Portico UI design tokens. Original palette inspired by practical
+   Chinese admin/form interfaces, not copied from any vendor stylesheet. */
+
+:root,
+.pt-theme {
+  --pt-color-primary: #3b7ddd;
+  --pt-color-primary-hover: #5a93e4;
+  --pt-color-primary-active: #2f64b1;
+  --pt-color-primary-soft: #ecf3fc;
+  --pt-color-primary-ring: rgb(59 125 221 / 28%);
+
+  --pt-color-success: #2f9e5c;
+  --pt-color-success-hover: #4baf73;
+  --pt-color-success-active: #247a47;
+  --pt-color-success-soft: #e9f7ef;
+  --pt-color-success-ring: rgb(47 158 92 / 28%);
+
+  --pt-color-warning: #d89a2a;
+  --pt-color-warning-hover: #e0ae52;
+  --pt-color-warning-active: #b07c1f;
+  --pt-color-warning-soft: #fdf6e8;
+  --pt-color-warning-ring: rgb(216 154 42 / 28%);
+
+  --pt-color-danger: #e05353;
+  --pt-color-danger-hover: #e67474;
+  --pt-color-danger-active: #b43d3d;
+  --pt-color-danger-soft: #fdeeee;
+  --pt-color-danger-ring: rgb(224 83 83 / 28%);
+
+  --pt-color-info: #7a8390;
+  --pt-color-info-hover: #929aa5;
+  --pt-color-info-active: #616974;
+  --pt-color-info-soft: #f1f3f5;
+  --pt-color-info-ring: rgb(122 131 144 / 28%);
+
+  --pt-text-color: #1f2a37;
+  --pt-text-regular: #4b5563;
+  --pt-text-secondary: #6b7280;
+  --pt-text-placeholder: #9ca3af;
+  --pt-text-disabled: #c4c8ce;
+  --pt-text-inverse: #ffffff;
+
+  --pt-border-color: #d7dde5;
+  --pt-border-light: #e6ebf0;
+  --pt-border-lighter: #eef2f6;
+  --pt-border-hover: #b8c2ce;
+  --pt-border-width: 1px;
+
+  --pt-bg: #ffffff;
+  --pt-bg-page: #f5f7fa;
+  --pt-bg-overlay: #ffffff;
+  --pt-bg-soft: #f3f5f8;
+  --pt-bg-softer: #f8f9fb;
+  --pt-bg-disabled: #f3f5f8;
+  --pt-overlay: rgb(15 23 42 / 45%);
+
+  --pt-radius-s: 4px;
+  --pt-radius: 6px;
+  --pt-radius-l: 10px;
+  --pt-radius-pill: 999px;
+
+  --pt-font-family: "Noto Sans SC", "Source Han Sans SC", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  --pt-font-size-s: 12px;
+  --pt-font-size: 14px;
+  --pt-font-size-l: 16px;
+  --pt-font-weight: 400;
+  --pt-font-weight-medium: 500;
+  --pt-line-height: 1.5;
+
+  --pt-space-1: 4px;
+  --pt-space-2: 8px;
+  --pt-space-3: 12px;
+  --pt-space-4: 16px;
+  --pt-space-5: 20px;
+  --pt-space-6: 24px;
+
+  --pt-control-h-s: 26px;
+  --pt-control-h: 34px;
+  --pt-control-h-l: 42px;
+  --pt-control-px-s: 8px;
+  --pt-control-px: 12px;
+  --pt-control-px-l: 16px;
+
+  --pt-shadow: 0 6px 16px rgb(31 42 55 / 8%), 0 1px 2px rgb(31 42 55 / 6%);
+  --pt-shadow-lg: 0 12px 32px rgb(31 42 55 / 14%);
+  --pt-z-dropdown: 2000;
+  --pt-z-dialog: 3000;
+  --pt-z-message: 4000;
+  --pt-ease: 180ms ease;
+}
+
+/* Dark tokens are reserved for later theming. They are not a complete theme yet. */
+html.pt-dark,
+[data-pt-theme="dark"] {
+  --pt-color-primary: #5b9aee;
+  --pt-color-primary-hover: #7aaef2;
+  --pt-color-primary-active: #3d7ed0;
+  --pt-color-primary-soft: #1c2f4a;
+  --pt-color-success: #4fbf7a;
+  --pt-color-success-hover: #6bcb90;
+  --pt-color-success-active: #3a9a60;
+  --pt-color-success-soft: #163525;
+  --pt-color-warning: #e0b258;
+  --pt-color-warning-hover: #e8c57a;
+  --pt-color-warning-active: #c39436;
+  --pt-color-warning-soft: #3a2e14;
+  --pt-color-danger: #ef7a7a;
+  --pt-color-danger-hover: #f39595;
+  --pt-color-danger-active: #d35c5c;
+  --pt-color-danger-soft: #3a1d1d;
+  --pt-color-info: #9aa3ae;
+  --pt-color-info-hover: #b0b7c0;
+  --pt-color-info-active: #7e8793;
+  --pt-color-info-soft: #2a3038;
+  --pt-text-color: #e8edf3;
+  --pt-text-regular: #c5ccd6;
+  --pt-text-secondary: #9aa3ae;
+  --pt-text-placeholder: #7a8390;
+  --pt-text-disabled: #5c6570;
+  --pt-border-color: #3a4450;
+  --pt-border-light: #323a44;
+  --pt-border-lighter: #2b323b;
+  --pt-border-hover: #526070;
+  --pt-bg: #1b2128;
+  --pt-bg-page: #12161b;
+  --pt-bg-overlay: #1f262e;
+  --pt-bg-soft: #242b33;
+  --pt-bg-softer: #20262d;
+  --pt-bg-disabled: #242b33;
+  --pt-overlay: rgb(0 0 0 / 60%);
+  --pt-shadow: 0 8px 24px rgb(0 0 0 / 32%);
+  --pt-shadow-lg: 0 16px 40px rgb(0 0 0 / 44%);
+}
+
+[class^="pt-"],
+[class*=" pt-"],
+[class^="pt-"]::before,
+[class*=" pt-"]::before,
+[class^="pt-"]::after,
+[class*=" pt-"]::after {
+  box-sizing: border-box;
+}
+
+.pt-theme,
+.pt-root {
+  font-family: var(--pt-font-family);
+  font-size: var(--pt-font-size);
+  line-height: var(--pt-line-height);
+  color: var(--pt-text-color);
+  -webkit-font-smoothing: antialiased;
+}
+
+.pt-icon {
+  display: inline-flex;
+  width: 1em;
+  height: 1em;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pt-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

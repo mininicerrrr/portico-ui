@@ -1,0 +1,5 @@
+export { default as PtSelect } from './Select.vue'
+export { default as PtOption } from './Option.vue'
+export type { SelectProps, SelectSize } from './Select.vue'
+export type { OptionProps } from './Option.vue'
+export type { SelectOptionData } from './tokens'

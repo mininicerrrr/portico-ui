@@ -1,0 +1,14 @@
+node_modules
+dist
+coverage
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+docs/.vitepress/cache
+docs/.vitepress/dist
+.vite
+.idea
+.vscode
+*.local

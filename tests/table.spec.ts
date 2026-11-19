@@ -86,7 +86,7 @@ describe('PtTable extras', () => {
     expect(wrapper.findAll('tbody tr').map((row) => row.find('td').text())).toEqual(['Lin', 'Bo', 'Ada'])
   })
 
-  it('shows a loading overlay without replacing the page', () => {
+  it('shows skeleton rows and a loading status while keeping headers', () => {
     const wrapper = mount(PtTable, {
       props: {
         columns,
@@ -94,8 +94,11 @@ describe('PtTable extras', () => {
         loading: true
       }
     })
-    expect(wrapper.find('.pt-table__loading').exists()).toBe(true)
-    expect(wrapper.text()).toContain('Ada')
+    expect(wrapper.find('.pt-table__loading-status').exists()).toBe(true)
+    expect(wrapper.find('.pt-table__skeleton-row').exists()).toBe(true)
+    expect(wrapper.findAll('th').map((node) => node.text())).toEqual(['Name', 'Role'])
+    expect(wrapper.text()).not.toContain('Ada')
+    expect(wrapper.text()).toContain('加载中')
   })
 
   it('virtualizes only when the virtual prop is set', () => {

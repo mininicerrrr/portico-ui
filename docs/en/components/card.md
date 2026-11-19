@@ -1,6 +1,6 @@
 # Card
 
-A surface for a related block of content, with optional header and footer. Cards use a 4px radius, a 1px border, and a 2px top lintel in `--pt-color-primary-ink`.
+A content surface with optional header/footer. v2: 1px border, 8px radius (`--pt-radius-l`), no top lintel; shadow via the `shadow` prop.
 
 ## Basic usage
 

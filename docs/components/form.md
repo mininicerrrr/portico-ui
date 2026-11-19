@@ -104,11 +104,11 @@ function onReset() {
 | required | 标记必填 | `boolean` | `false` |
 | rules | 单项规则 | `FormRule \| FormRule[]` | — |
 | error | 外部传入的错误文案 | `string` | — |
-| validateStatus | 显式校验态，成功仅在值为 success 时显示 | `'error' \| 'success' \| ''` | — |
+表单容器，支持校验、标签布局与表单项关联。v2：`PtFormItem` 可选 `validateStatus`；错误为 1px 危险描边 + 说明文案（无左轨），成功仅在显式 `success` 时出现 1px 成功描边。
 | labelWidth | 覆盖表单标签宽度 | `string` | — |
 | showMessage | 是否显示错误 | `boolean` | `true` |
 
 ## 成功状态
 
-`PtFormItem` 增加了可选的 `validateStatus`（`'error' | 'success' | ''`）。成功描边只在 `validateStatus="success"` 时出现（2px 成功色边，没有光晕或左轨），校验通过不会自动加上成功态。错误态是 2px 危险描边加 3px 左轨。默认标签宽度使用 `--pt-form-label-width`（96px），标签为 Medium 字重。
+`PtFormItem` 可选 `validateStatus`（`'error' | 'success' | ''`）。v2：成功仅在显式 `success` 时为 1px 成功描边；错误为 1px 危险描边 + 说明文案。标签默认宽度 `--pt-form-label-width`（96px），Medium 字重。
 

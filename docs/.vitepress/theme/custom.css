@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500&display=swap");
-
 :root {
   --vp-c-brand-1: #3473ce;
   --vp-c-brand-2: #2f69bd;
@@ -32,12 +30,14 @@ body,
 .pt-demo__body {
   padding: 20px;
 }
-.pt-demo .pt-space,
-.pt-demo .pt-button,
-.pt-demo .pt-input,
-.pt-demo .pt-select,
-.pt-demo .pt-form {
-  font-family: var(--pt-font-family);
+.pt-demo .pt-theme,
+.pt-demo .pt-theme .pt-button,
+.pt-demo .pt-theme .pt-input,
+.pt-demo .pt-theme .pt-input__inner,
+.pt-demo .pt-theme .pt-table,
+.pt-demo .pt-theme .pt-select,
+.pt-demo .pt-theme .pt-form {
+  font-family: "Noto Sans SC", var(--pt-font-family) !important;
 }
 
 .VPHome .VPHero .name { letter-spacing: -0.02em; }

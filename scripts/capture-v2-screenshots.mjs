@@ -1,59 +1,110 @@
-import { spawn } from 'node:child_process'
-import { mkdir } from 'node:fs/promises'
+#!/usr/bin/env node
+/**
+ * Capture live VitePress proof screenshots. Requires: npm run docs:build && vitepress preview.
+ * Uses site base /portico-ui/ from docs/.vitepress/config.ts
+ */
+import { mkdir, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
-import { pathToFileURL } from 'node:url'
-import { setTimeout as delay } from 'node:timers/promises'
 
-const root = resolve(import.meta.dirname, '..')
-const outDir = '/opt/cursor/artifacts/v2-screenshots'
-const routes = [
-  { name: 'live-visual-v2-page', path: '/guide/visual-v2.html' },
-  { name: 'live-button-doc', path: '/components/button.html' },
-  { name: 'live-table-doc', path: '/components/table.html' },
+/** VitePress `preview` currently 404s hashed assets with `base: /portico-ui/` — use `vitepress dev` on :5173. */
+const BASE = process.env.V2_DOCS_BASE || 'http://127.0.0.1:5173/portico-ui'
+const outDir = process.env.V2_SCREENSHOT_DIR || '/opt/cursor/artifacts/v2-screenshots'
+
+const shots = [
+  { file: 'live-v2-composition.png', path: '/guide/visual-v2', anchor: '#v2-composition', expectSelector: '#v2-composition .pt-input' },
+  { file: 'live-v2-buttons.png', path: '/guide/visual-v2', anchor: '#v2-buttons', expectText: '保存中', focusSelector: '.pt-button--primary' },
+  { file: 'live-v2-inputs.png', path: '/guide/visual-v2', anchor: '#v2-inputs', expectSelector: '#v2-inputs .pt-input.is-disabled, #v2-inputs .pt-input.is-disabled .pt-input__inner' },
+  { file: 'live-v2-table-loading.png', path: '/guide/visual-v2', anchor: '#v2-table-loading', expectSelector: '.pt-table__skeleton-row' },
+  { file: 'live-v2-dark.png', path: '/guide/visual-v2', anchor: '#v2-dark', expectSelector: '[data-pt-theme="dark"] .pt-table__skeleton-cell' },
 ]
 
-async function waitForServer(url, maxMs = 30000) {
-  const start = Date.now()
-  while (Date.now() - start < maxMs) {
-    try {
-      const res = await fetch(url)
-      if (res.ok) return
-    } catch {
-      /* retry */
-    }
-    await delay(400)
+async function assertPage(page, { expectText, expectSelector }) {
+  const body = await page.textContent('body')
+  if (body?.includes('PAGE NOT FOUND') || body?.includes('404')) {
+    throw new Error('Got VitePress 404 – check BASE path (must include /portico-ui/)')
   }
-  throw new Error(`Preview server did not start: ${url}`)
+  if (expectText && !body?.includes(expectText)) {
+    throw new Error(`Missing expected text: ${expectText}`)
+  }
+  if (expectSelector && !(await page.locator(expectSelector).count())) {
+    throw new Error(`Missing selector: ${expectSelector}`)
+  }
+  if (!(await page.locator('.pt-button').count())) {
+    throw new Error('No .pt-button on page – not live Portico components')
+  }
 }
 
-const preview = spawn('npx', ['vitepress', 'preview', 'docs', '--host', '127.0.0.1', '--port', '4173'], {
-  cwd: root,
-  stdio: 'ignore'
-})
+async function fontEvidence(page) {
+  await page.evaluate(async () => {
+    if (document.fonts?.load) {
+      await document.fonts.load('500 14px "Noto Sans SC"')
+      await document.fonts.load('400 14px "Noto Sans SC"')
+      await document.fonts.ready
+    }
+  })
+  return page.evaluate(() => {
+    const el =
+      [...document.querySelectorAll('.pt-button')].find((n) => /[\u4e00-\u9fff]/.test(n.textContent || '')) ||
+      document.querySelector('.pt-input__inner') ||
+      document.querySelector('.pt-button') ||
+      document.body
+    const cs = getComputedStyle(el)
+    const families = (document.fonts && [...document.fonts].slice(0, 8).map((f) => f.family)) || []
+    const notoLoaded = document.fonts ? document.fonts.check('500 14px "Noto Sans SC"') : false
+    const usesNoto = /Noto Sans SC/i.test(cs.fontFamily)
+    return {
+      fontFamily: cs.fontFamily,
+      fontWeight: cs.fontWeight,
+      notoLoaded,
+      usesNoto,
+      fontFacesSample: families
+    }
+  })
+}
 
-try {
-  await waitForServer('http://127.0.0.1:4173/')
+async function main() {
   const { chromium } = await import('playwright')
   await mkdir(outDir, { recursive: true })
   const browser = await chromium.launch()
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
-  await page.goto('http://127.0.0.1:4173/guide/visual-v2.html', { waitUntil: 'networkidle' })
-  await page.waitForTimeout(1500)
-  await page.evaluate(async () => {
-    if (document.fonts?.ready) await document.fonts.ready
-  })
-  for (const route of routes) {
-    await page.goto(`http://127.0.0.1:4173${route.path}`, { waitUntil: 'networkidle' })
+  const evidence = []
+
+  for (const shot of shots) {
+    const url = `${BASE}${shot.path}${shot.anchor || ''}`
+    await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 })
+    await page.waitForSelector('.pt-button', { timeout: 30000 })
+    await page.waitForFunction(() => document.querySelectorAll('.pt-input, .pt-table').length > 0, { timeout: 30000 })
     await page.waitForTimeout(1200)
-    await page.evaluate(async () => {
-      if (document.fonts?.ready) await document.fonts.ready
-    })
-    await page.screenshot({ path: resolve(outDir, `${route.name}.png`), fullPage: true })
+    await assertPage(page, shot)
+    if (shot.focusSelector) {
+      const target = page.locator(shot.focusSelector).first()
+      await target.focus()
+      await page.waitForTimeout(200)
+    }
+    const font = await fontEvidence(page)
+    const out = resolve(outDir, shot.file)
+    if (shot.anchor) {
+      const el = page.locator(shot.anchor)
+      if (await el.count()) {
+        await el.screenshot({ path: out })
+      } else {
+        await page.screenshot({ path: out, fullPage: true })
+      }
+    } else {
+      await page.screenshot({ path: out, fullPage: true })
+    }
+    if (!font.usesNoto) {
+      throw new Error(`Noto Sans SC not in computed font-family (got ${font.fontFamily}, loaded=${font.notoLoaded})`)
+    }
+    evidence.push({ url, file: shot.file, font, title: await page.title() })
   }
-  const fontFamily = await page.evaluate(() => getComputedStyle(document.body).fontFamily)
-  await page.screenshot({ path: resolve(outDir, 'live-composition-full.png'), fullPage: true })
-  console.log(JSON.stringify({ outDir, fontFamily, routes: routes.map((r) => r.name) }))
+
+  await writeFile(resolve(outDir, 'capture-evidence.json'), JSON.stringify({ base: BASE, evidence }, null, 2))
+  console.log(JSON.stringify({ ok: true, outDir, evidence }, null, 2))
   await browser.close()
-} finally {
-  preview.kill('SIGTERM')
 }
+
+main().catch((err) => {
+  console.error(err)
+  process.exit(1)
+})

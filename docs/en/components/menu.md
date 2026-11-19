@@ -1,6 +1,6 @@
 # Menu
 
-Sidebar or header navigation. Vertical mode uses `--pt-sidebar-width` (232px) and collapses to 56px. Labels use Medium weight. The selected item has a 3px left primary rail and a primary-soft fill.
+Sidebar or header navigation. v2 selection uses `--pt-bg-row-selected` without a left rail.
 
 ## Basic usage
 

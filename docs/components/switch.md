@@ -1,6 +1,6 @@
 # Switch 开关
 
-在开和关两种状态间切换。支持键盘 Space / Enter。开关是短矩形轨道（2px 圆角）和略方的滑块，不是 iOS 胶囊。关闭轨道使用 `--pt-switch-track`，开启为主色；焦点是硬边 2px 偏移环。
+在开和关两种状态间切换。v2 轨道 6px 圆角；焦点为 3px 浅蓝环。禁用无 opacity 衰减。
 
 <script setup>
 import { ref } from 'vue'

@@ -1,6 +1,6 @@
 # Switch
 
-Toggle between two values. Space and Enter activate the control. The switch uses `role="switch"` and `aria-checked`. It is a short rectangular track with a square-ish 2px-radius knob, not an iOS capsule. The off track uses `--pt-switch-track`; the on fill is primary. Focus is a hard 2px offset ring.
+Toggle between two values. v2: short rectangular track (6px radius), not an iOS capsule. Off track `--pt-switch-track`, on fill primary. Focus uses the 3px pale ring; disabled without global opacity.
 
 <script setup>
 import { ref } from 'vue'

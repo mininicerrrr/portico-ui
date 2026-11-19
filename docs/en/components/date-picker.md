@@ -1,6 +1,6 @@
 # DatePicker
 
-v1 supports only `date` and `daterange`. Use `format` for display and `valueFormat` for the bound value. The panel uses a 4px radius. Day cells are 2px-radius squares, not pills. The selected day is a primary fill; a range uses primary-soft with square-ish 2px ends.
+v1 supports only `date` and `daterange`. v2: 6px control/panel radius, 1px borders; selected day primary fill, range soft fill, no pill cells.
 
 ## Basic usage
 

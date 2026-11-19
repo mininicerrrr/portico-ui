@@ -22,6 +22,13 @@ describe('PtButton', () => {
     expect(text.classes()).not.toContain('pt-button--plain')
   })
 
+  it('shows a 16px spinner when loading without removing slot content from DOM', async () => {
+    const loading = mount(PtButton, { props: { type: 'primary', loading: true }, slots: { default: '保存中' } })
+    const spinner = loading.get('.pt-button__spinner')
+    expect(spinner.exists()).toBe(true)
+    expect(loading.get('.pt-button__content').text()).toBe('保存中')
+  })
+
   it('disables the button and blocks click when disabled or loading', async () => {
     const disabled = mount(PtButton, { props: { disabled: true }, slots: { default: 'Go' } })
     expect(disabled.get('button').element.disabled).toBe(true)

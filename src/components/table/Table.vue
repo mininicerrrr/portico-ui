@@ -55,7 +55,9 @@ const sortOrder = ref<TableSortOrder>(null)
 const currentKey = ref<string | null>(null)
 
 const emptyLabel = computed(() => props.emptyText ?? t('table.emptyText'))
-const isEmpty = computed(() => !props.data.length)
+const skeletonRowCount = 5
+const skeletonBars = ['92%', '68%', '54%', '76%', '40%']
+const isEmpty = computed(() => !props.data.length && !props.loading)
 const maxHeightStyle = computed(() => {
   if (props.maxHeight == null && !props.virtual) return undefined
   const raw = props.maxHeight ?? 400
@@ -207,7 +209,22 @@ watch(
             </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody v-if="loading" class="pt-table__body--loading">
+          <tr
+            v-for="rowIndex in skeletonRowCount"
+            :key="`skeleton-${rowIndex}`"
+            class="pt-table__skeleton-row"
+            aria-hidden="true"
+          >
+            <td v-for="(column, columnIndex) in columns" :key="column.prop" :style="widthStyle(column)">
+              <span
+                class="pt-table__skeleton-cell"
+                :style="{ width: skeletonBars[(rowIndex + columnIndex) % skeletonBars.length] }"
+              />
+            </td>
+          </tr>
+        </tbody>
+        <tbody v-else>
           <tr v-if="virtual && topSpacer" class="pt-table__spacer" aria-hidden="true">
             <td :colspan="columns.length" :style="{ height: `${topSpacer}px`, padding: 0, border: 0 }" />
           </tr>
@@ -226,17 +243,17 @@ watch(
           <tr v-if="virtual && bottomSpacer" class="pt-table__spacer" aria-hidden="true">
             <td :colspan="columns.length" :style="{ height: `${bottomSpacer}px`, padding: 0, border: 0 }" />
           </tr>
-          <tr v-if="isEmpty && !loading">
+          <tr v-if="isEmpty">
             <td :colspan="columns.length" class="pt-table__empty">
               <slot name="empty">{{ emptyLabel }}</slot>
             </td>
           </tr>
         </tbody>
       </table>
-    </div>
-    <div v-if="loading" class="pt-table__loading" role="status" :aria-label="t('table.loadingText')">
-      <pt-spinner />
-      <span>{{ t('table.loadingText') }}</span>
+      <div v-if="loading" class="pt-table__loading-status" role="status" :aria-label="t('table.loadingText')">
+        <pt-spinner />
+        <span>{{ t('table.loadingText') }}</span>
+      </div>
     </div>
   </div>
 </template>

@@ -1,6 +1,6 @@
 # Table 表格
 
-用于展示行列数据。传入 `columns` 与 `data`，在没有数据时显示空状态。v2：表头 Medium + `--pt-bg-soft`，行间 1px 分隔，无竖向网格。行悬停 `--pt-bg-row-hover`，当前行/选中 `--pt-bg-row-selected`（无左侧轨）。加载保留表头与列宽，浅色遮罩非整页阻塞。
+用于展示行列数据。传入 `columns` 与 `data`，在没有数据时显示空状态。v2：表头 Medium + `--pt-bg-soft`，行间 1px 分隔，无竖向网格。行悬停 `--pt-bg-row-hover`，当前行/选中 `--pt-bg-row-selected`（无左侧轨）。`loading` 时保留表头与列宽，表体显示骨架条（暗色 `--pt-skeleton-fill` #2B3A4F），中部浮层显示「加载中…」+ 16px 旋转图标，无整表阻塞遮罩。
 
 <script setup>
 import { ref } from 'vue'

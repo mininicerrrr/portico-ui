@@ -8,6 +8,8 @@
   --pt-color-primary-soft: #edf4ff;
   --pt-color-primary-ink: #275aa3;
   --pt-color-primary-ring: rgb(52 115 206 / 24%);
+  --pt-color-primary-disabled-bg: #b4c5de;
+  --pt-color-primary-disabled-fg: #ffffff;
   --pt-color-focus-ring: #dae8fc;
 
   --pt-color-success: #2f9e5c;

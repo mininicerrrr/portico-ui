@@ -1,6 +1,6 @@
 # Dialog
 
-A modal panel. Focus moves into the dialog when it opens, Tab is trapped, and Escape closes it and restores focus. The panel uses a 4px radius, a 1px border, and a 4px top lintel in primary.
+Modal panel with focus trap and Esc to close. v2: 6px radius, 1px border, no top lintel.
 
 <script setup>
 import { ref } from 'vue'

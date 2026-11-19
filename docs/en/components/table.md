@@ -1,6 +1,6 @@
 # Table
 
-Renders `columns` and `data`, and shows an empty state when there are no rows. Column slots receive `{ row, column, index, value }`. v2: Medium headers on `--pt-bg-soft`, 1px row separators, no vertical grid. Hover uses `--pt-bg-row-hover`; current/selected rows use `--pt-bg-row-selected` without a left rail. Loading keeps headers/column widths with a light overlay, not a full-page blocker.
+Renders `columns` and `data`, and shows an empty state when there are no rows. Column slots receive `{ row, column, index, value }`. v2: Medium headers on `--pt-bg-soft`, 1px row separators, no vertical grid. Hover uses `--pt-bg-row-hover`; current/selected rows use `--pt-bg-row-selected` without a left rail. When `loading` is true, headers and column widths stay fixed; the body shows skeleton bars (dark `--pt-skeleton-fill` #2B3A4F) and a floating status pill with the locale loading label and a 16px spinner—not a blocking full-table mask.
 
 <script setup>
 import { ref } from 'vue'

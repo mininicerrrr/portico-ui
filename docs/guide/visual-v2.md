@@ -117,6 +117,12 @@ const asyncInput = ref('异步校验中')
   </div>
 </DemoBox>
 
+<DemoBox title="按钮：主色按下（捕获时 mouse down，截图后 mouse up）" id="v2-buttons-pressed">
+  <div class="pt-theme pt-root v2-shot-584">
+    <pt-button id="v2-btn-pressed-target" type="primary" style="min-width: 120px">主要 · 按下</pt-button>
+  </div>
+</DemoBox>
+
 <DemoBox title="暗色：禁用 / 带文案加载" id="v2-buttons-dark">
   <div class="v2-dark-surface pt-theme pt-root" data-pt-theme="dark">
     <pt-space wrap :size="12">

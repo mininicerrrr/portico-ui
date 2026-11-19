@@ -3,16 +3,35 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { execSync } from 'node:child_process'
 import { resolve } from 'node:path'
 
+const repoRoot = resolve(import.meta.dirname, '..')
 const BASE = process.env.V2_DOCS_BASE || 'http://127.0.0.1:5173/portico-ui'
 const outDir = process.env.V2_SCREENSHOT_DIR || '/opt/cursor/artifacts/v2-screenshots'
 const VIEWPORT = { width: 1280, height: 1200 }
 const DPR = 1
 
-function gitSha() {
+/** Hide VitePress chrome only; demo/component DOM unchanged. */
+const CHROME_HIDE_CSS = `
+  .VPNav, .VPNavBar, .VPLocalNav, .VPDocAside, .VPDocFooter,
+  .VPSkipLink, .VPBackdrop, .DocSearch { display: none !important; visibility: hidden !important; }
+  .VPContent, .VPDoc, .content-container, main { padding-top: 0 !important; margin-top: 0 !important; }
+  .VPDoc .container { padding-top: 12px !important; }
+`
+
+function gitInfo() {
   try {
-    return execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim()
+    const commitSha = execSync('git rev-parse HEAD', { cwd: repoRoot, encoding: 'utf8' }).trim()
+    const commitShaShort = execSync('git rev-parse --short HEAD', { cwd: repoRoot, encoding: 'utf8' }).trim()
+    const porcelain = execSync('git status --porcelain', { cwd: repoRoot, encoding: 'utf8' }).trim()
+    const branch = execSync('git rev-parse --abbrev-ref HEAD', { cwd: repoRoot, encoding: 'utf8' }).trim()
+    return {
+      commitSha,
+      commitShaShort,
+      branch,
+      worktreeClean: porcelain.length === 0,
+      dirtyPaths: porcelain ? porcelain.split('\n').map((l) => l.slice(3)) : []
+    }
   } catch {
-    return 'unknown'
+    return { commitSha: 'unknown', commitShaShort: 'unknown', branch: 'unknown', worktreeClean: false, dirtyPaths: [] }
   }
 }
 
@@ -46,8 +65,38 @@ const shots = [
     setup: async (page) => {
       await page.locator('#v2-btn-hover-secondary').hover()
     },
-    state: 'Mouse hover on default secondary',
+    state: 'Mouse hover on default secondary (#v2-btn-hover-secondary)',
     metrics: ['hoverButton']
+  },
+  {
+    file: 'live-v2-buttons-pressed.png',
+    anchor: '#v2-buttons-pressed',
+    setup: async (page) => {
+      const btn = page.locator('#v2-btn-pressed-target')
+      const box = await btn.boundingBox()
+      if (!box) throw new Error('pressed target missing layout')
+      const x = box.x + box.width / 2
+      const y = box.y + box.height / 2
+      await page.mouse.move(x, y)
+      await page.mouse.down()
+      await page.waitForTimeout(80)
+    },
+    teardown: async (page) => {
+      await page.mouse.up()
+    },
+    verify: async (page) => {
+      const bg = await page.locator('#v2-btn-pressed-target').evaluate((el) => getComputedStyle(el).backgroundColor)
+      const idle = 'rgb(52, 115, 206)'
+      if (bg === idle) {
+        throw new Error('Pressed state not applied: background still idle primary blue')
+      }
+      const nums = bg.match(/\d+/g)?.map(Number)
+      if (!nums || nums[0] >= 52) {
+        throw new Error(`Pressed primary should darken from idle #3473CE, got ${bg}`)
+      }
+    },
+    state: 'Primary :active via Playwright mouse.down() on #v2-btn-pressed-target; computed bg darker than idle',
+    metrics: ['pressedButton']
   },
   {
     file: 'live-v2-buttons-dark.png',
@@ -60,10 +109,10 @@ const shots = [
     file: 'live-v2-inputs.png',
     anchor: '#v2-inputs',
     setup: async (page) => {
-      await page.locator('#v2-input-focus-field').focus()
+      await page.locator('#v2-input-focus-field input, #v2-input-focus-field .pt-input__inner').first().focus()
     },
     state: 'Placeholder, focused filled input, FormItem error with helper text',
-    metrics: ['input', 'errorInput', 'formMessage']
+    metrics: ['input', 'errorInput', 'formMessage', 'focusInput']
   },
   {
     file: 'live-v2-input-async.png',
@@ -106,14 +155,18 @@ const shots = [
     setup: async (page) => {
       await page.locator('#v2-table-tooltip tbody .pt-table__cell').first().hover()
       await page.waitForFunction(
-        () =>
-          [...document.querySelectorAll('#v2-table-tooltip .pt-tooltip__panel')].some((el) =>
-            el.textContent?.includes('品牌资产')
-          ),
+        () => {
+          const panels = [...document.querySelectorAll('#v2-table-tooltip .pt-tooltip__panel')]
+          return panels.some((el) => {
+            const r = el.getBoundingClientRect()
+            const shown = r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== 'hidden'
+            return shown && el.textContent?.includes('品牌资产协作规范')
+          })
+        },
         { timeout: 8000 }
       )
     },
-    state: 'Tooltip visible for ellipsized long member name',
+    state: 'Tooltip panel visible with full long member title (hover first name cell)',
     metrics: ['tooltipPanel', 'ellipsisCell']
   },
   {
@@ -139,6 +192,30 @@ const shots = [
   }
 ]
 
+async function hideDocChrome(page) {
+  await page.evaluate((css) => {
+    const id = 'v2-capture-chrome-hide'
+    if (!document.getElementById(id)) {
+      const s = document.createElement('style')
+      s.id = id
+      s.textContent = css
+      document.head.appendChild(s)
+    }
+  }, CHROME_HIDE_CSS)
+}
+
+async function frameDemo(page, anchor) {
+  await hideDocChrome(page)
+  const loc = page.locator(anchor)
+  await loc.scrollIntoViewIfNeeded()
+  await page.evaluate((sel) => {
+    const el = document.querySelector(sel)
+    if (el) el.scrollIntoView({ block: 'start', behavior: 'instant' })
+    window.scrollBy(0, -4)
+  }, anchor)
+  await page.waitForTimeout(150)
+}
+
 async function measure(page, anchor, keys) {
   return page.evaluate(
     ({ anchorId, keys: metricKeys }) => {
@@ -162,10 +239,13 @@ async function measure(page, anchor, keys) {
       if (metricKeys.includes('table')) {
         const table = pick('.pt-table__table')
         const s = cs(table)
+        const r = rect(table)
         out.table = {
           display: s?.display,
           width: s?.width,
-          tableLayout: s?.tableLayout
+          tableLayout: s?.tableLayout,
+          borderCollapse: s?.borderCollapse,
+          boxWidth: r?.width
         }
       }
       if (metricKeys.includes('primaryButton')) {
@@ -175,14 +255,22 @@ async function measure(page, anchor, keys) {
         out.primaryButton = {
           backgroundColor: s?.backgroundColor,
           borderRadius: s?.borderRadius,
+          borderWidth: s?.borderWidth,
           height: r?.height,
+          width: r?.width,
           font: fontProbe(btn, '.pt-button--primary')
         }
       }
       if (metricKeys.includes('disabledPrimary')) {
         const btn = pick('.pt-button--primary.is-disabled, .pt-button--primary:disabled:not(.is-loading)')
         const s = cs(btn)
-        out.disabledPrimary = { backgroundColor: s?.backgroundColor, color: s?.color, borderColor: s?.borderColor }
+        out.disabledPrimary = {
+          backgroundColor: s?.backgroundColor,
+          color: s?.color,
+          borderColor: s?.borderColor,
+          borderRadius: s?.borderRadius,
+          borderWidth: s?.borderWidth
+        }
       }
       if (metricKeys.includes('loadingPrimary')) {
         const btn = pick('.pt-button--primary.is-loading')
@@ -192,6 +280,7 @@ async function measure(page, anchor, keys) {
         out.loadingPrimary = {
           backgroundColor: s?.backgroundColor,
           color: s?.color,
+          borderRadius: s?.borderRadius,
           labelVisibility: contentCs?.visibility,
           labelOpacity: contentCs?.opacity,
           labelText: content?.textContent?.trim(),
@@ -200,30 +289,71 @@ async function measure(page, anchor, keys) {
       }
       if (metricKeys.includes('focusButton')) {
         const btn = pick('#v2-btn-focus-target') || pick('.pt-button:focus-visible')
-        out.focusButton = { boxShadow: cs(btn)?.boxShadow }
+        const s = cs(btn)
+        out.focusButton = {
+          boxShadow: s?.boxShadow,
+          borderRadius: s?.borderRadius,
+          backgroundColor: s?.backgroundColor
+        }
       }
       if (metricKeys.includes('hoverButton')) {
         const btn = pick('#v2-btn-hover-secondary')
-        out.hoverButton = { backgroundColor: cs(btn)?.backgroundColor }
+        const s = cs(btn)
+        out.hoverButton = {
+          backgroundColor: s?.backgroundColor,
+          borderColor: s?.borderColor,
+          borderRadius: s?.borderRadius
+        }
+      }
+      if (metricKeys.includes('pressedButton')) {
+        const btn = pick('#v2-btn-pressed-target')
+        const s = cs(btn)
+        out.pressedButton = {
+          backgroundColor: s?.backgroundColor,
+          borderRadius: s?.borderRadius,
+          expectedActiveToken: '#275aa3'
+        }
       }
       if (metricKeys.includes('darkLoadingPrimary')) {
-        const btn = pick('[data-pt-theme="dark"] .pt-button--primary.is-loading, .v2-dark-surface .pt-button--primary.is-loading')
+        const btn = pick('.v2-dark-surface .pt-button--primary.is-loading')
         out.darkLoadingPrimary = {
           backgroundColor: cs(btn)?.backgroundColor,
-          labelText: pick('.v2-dark-surface .pt-button--primary.is-loading .pt-button__content')?.textContent?.trim()
+          labelText: pick('.v2-dark-surface .pt-button--primary.is-loading .pt-button__content')?.textContent?.trim(),
+          borderRadius: cs(btn)?.borderRadius
         }
       }
       if (metricKeys.includes('darkDisabledPrimary')) {
         const btn = pick('.v2-dark-surface .pt-button--primary.is-disabled')
-        out.darkDisabledPrimary = { backgroundColor: cs(btn)?.backgroundColor, color: cs(btn)?.color }
+        out.darkDisabledPrimary = {
+          backgroundColor: cs(btn)?.backgroundColor,
+          color: cs(btn)?.color,
+          borderColor: cs(btn)?.borderColor
+        }
       }
       if (metricKeys.includes('input')) {
         const inp = pick('.pt-input')
-        out.input = { borderRadius: cs(inp)?.borderRadius, borderWidth: cs(inp)?.borderWidth, font: fontProbe(inp, '.pt-input') }
+        out.input = {
+          borderRadius: cs(inp)?.borderRadius,
+          borderWidth: cs(inp)?.borderWidth,
+          borderColor: cs(inp)?.borderColor,
+          font: fontProbe(inp, '.pt-input')
+        }
+      }
+      if (metricKeys.includes('focusInput')) {
+        const inp = pick('#v2-input-focus-field') || pick('.pt-input.is-focus')
+        out.focusInput = {
+          borderColor: cs(inp)?.borderColor,
+          boxShadow: cs(inp)?.boxShadow,
+          isFocusClass: inp?.classList.contains('is-focus')
+        }
       }
       if (metricKeys.includes('errorInput')) {
-        const inp = pick('.pt-form-item .pt-input') || pick('.pt-input.is-error')
-        out.errorInput = { borderColor: cs(inp)?.borderColor }
+        const inp = pick('.pt-form-item .pt-input')
+        out.errorInput = {
+          borderColor: cs(inp)?.borderColor,
+          borderWidth: cs(inp)?.borderWidth,
+          borderRadius: cs(inp)?.borderRadius
+        }
       }
       if (metricKeys.includes('formMessage')) {
         const msg = pick('.pt-form-item__error')
@@ -242,25 +372,37 @@ async function measure(page, anchor, keys) {
         out.hoverRow = { backgroundColor: cs(row)?.backgroundColor }
       }
       if (metricKeys.includes('tooltipPanel')) {
-        const panel = document.querySelector('.pt-tooltip__panel')
-        out.tooltipPanel = { visible: Boolean(panel), text: panel?.textContent?.trim() }
+        const panels = [...root.querySelectorAll('.pt-tooltip__panel')]
+        const visible = panels.find((el) => {
+          const r = el.getBoundingClientRect()
+          return r.width > 0 && r.height > 0 && el.textContent?.includes('品牌资产')
+        })
+        out.tooltipPanel = {
+          visible: Boolean(visible),
+          text: visible?.textContent?.trim(),
+          width: visible ? rect(visible)?.width : null
+        }
       }
       if (metricKeys.includes('ellipsisCell')) {
-        const cell = pick('.pt-table__cell')
+        const cell = pick('#v2-table-tooltip .pt-table__cell') || pick('.pt-table__cell')
         const s = cs(cell)
-        out.ellipsisCell = { textOverflow: s?.textOverflow, whiteSpace: s?.whiteSpace }
+        out.ellipsisCell = { textOverflow: s?.textOverflow, whiteSpace: s?.whiteSpace, clientWidth: cell?.clientWidth }
       }
       if (metricKeys.includes('skeleton')) {
         const sk = pick('.pt-table__skeleton-cell')
-        out.skeleton = { fill: cs(sk)?.backgroundColor, width: cs(pick('.pt-table__table'))?.width }
+        out.skeleton = {
+          fill: cs(sk)?.backgroundColor,
+          borderRadius: cs(sk)?.borderRadius,
+          tableWidth: cs(pick('.pt-table__table'))?.width
+        }
       }
       if (metricKeys.includes('darkSurface')) {
         const el = pick('.v2-dark-surface')
-        out.darkSurface = { width: cs(el)?.width }
+        out.darkSurface = { width: cs(el)?.width, borderRadius: cs(el)?.borderWidth }
       }
-      const row = pick('#v2-composition tbody tr')
-      if (row && metricKeys.includes('table')) {
-        const cells = row.querySelectorAll('td')
+      const compRow = document.querySelector('#v2-composition tbody tr')
+      if (compRow && metricKeys.includes('table')) {
+        const cells = compRow.querySelectorAll('td')
         const overlaps = []
         for (let i = 0; i < cells.length - 1; i++) {
           const a = cells[i].getBoundingClientRect()
@@ -271,7 +413,11 @@ async function measure(page, anchor, keys) {
       }
       const th = pick('.pt-table th')
       if (th && metricKeys.includes('table')) {
-        out.tableHeader = { font: fontProbe(th, 'th'), borderLeftWidth: cs(th)?.borderLeftWidth }
+        out.tableHeader = {
+          font: fontProbe(th, 'th'),
+          borderLeftWidth: cs(th)?.borderLeftWidth,
+          borderBottomWidth: cs(th)?.borderBottomWidth
+        }
       }
       const tdBody = pick('tbody td')
       if (tdBody && metricKeys.includes('table')) {
@@ -286,6 +432,14 @@ async function measure(page, anchor, keys) {
 async function assertBasics(page, shot) {
   const body = await page.textContent('body')
   if (body?.includes('PAGE NOT FOUND')) throw new Error('VitePress 404')
+  const nav = page.locator('.VPNav')
+  if ((await nav.count()) && (await nav.isVisible())) {
+    const box = await page.locator(shot.anchor).boundingBox()
+    const navBox = await nav.boundingBox()
+    if (box && navBox && box.y < navBox.bottom - 2) {
+      throw new Error('Demo still under VPNav after chrome hide — adjust framing')
+    }
+  }
   const table = page.locator(`${shot.anchor} .pt-table__table`).first()
   if ((await table.count()) && (await table.evaluate((el) => getComputedStyle(el).display)) !== 'table') {
     throw new Error(`table display !== table at ${shot.anchor}`)
@@ -297,30 +451,43 @@ async function assertBasics(page, shot) {
     const bg = await page.locator(`${shot.anchor} .pt-button--primary.is-loading`).evaluate((el) => getComputedStyle(el).backgroundColor)
     if (bg !== 'rgb(52, 115, 206)') throw new Error(`Loading primary bg expected #3473CE, got ${bg}`)
   }
+  if (shot.file === 'live-v2-table-tooltip.png') {
+    const ok = await page.evaluate(() => {
+      const panels = [...document.querySelectorAll('#v2-table-tooltip .pt-tooltip__panel')]
+      return panels.some((el) => {
+        const r = el.getBoundingClientRect()
+        return r.width > 0 && el.textContent?.includes('品牌资产协作规范')
+      })
+    })
+    if (!ok) throw new Error('Long-text tooltip panel not visible in capture frame')
+  }
 }
 
 async function behaviorChecks(page) {
   const loadingBtn = page.locator('#v2-buttons .pt-button--primary.is-loading').first()
   const disabledBtn = page.locator('#v2-buttons .pt-button--primary:disabled').first()
-  const disabledClicks = []
-  await disabledBtn.evaluate((el) => el.addEventListener('click', (e) => e.stopPropagation()))
-  await loadingBtn.evaluate((el) => el.addEventListener('click', (e) => e.stopPropagation()))
   const ariaBusy = await loadingBtn.getAttribute('aria-busy')
-  const loadingDisabled = await loadingBtn.isDisabled()
-  const primaryDisabled = await disabledBtn.isDisabled()
   return {
-    loadingButton: { ariaBusy, nativeDisabled: loadingDisabled, hasIsDisabledClass: await loadingBtn.evaluate((el) => el.classList.contains('is-disabled')) },
-    disabledButton: { nativeDisabled: primaryDisabled, hasIsDisabledClass: await disabledBtn.evaluate((el) => el.classList.contains('is-disabled')) },
+    loadingButton: {
+      ariaBusy,
+      nativeDisabled: await loadingBtn.isDisabled(),
+      hasIsDisabledClass: await loadingBtn.evaluate((el) => el.classList.contains('is-disabled'))
+    },
+    disabledButton: {
+      nativeDisabled: await disabledBtn.isDisabled(),
+      hasIsDisabledClass: await disabledBtn.evaluate((el) => el.classList.contains('is-disabled'))
+    },
+    pressedCapture: 'live-v2-buttons-pressed.png via mouse.down + computed #275AA3',
     sortEmit: 'covered by unit test table.spec.ts sort-change',
-    unsupportedStates: [
-      { component: 'PtInput', state: 'built-in loading prop', workaround: 'use suffix slot (see #v2-input-async)' },
-      { component: 'PtButton', state: ':active pressed', note: 'captured via hover/focus; pressed pseudo optional in Playwright mousedown' }
-    ]
+    unsupportedOrDemoOnly: [{ component: 'PtInput', state: 'built-in loading prop', workaround: 'suffix slot (#v2-input-async)' }]
   }
 }
 
 async function main() {
-  const sha = gitSha()
+  const git = gitInfo()
+  if (!git.worktreeClean) {
+    console.warn(JSON.stringify({ warn: 'worktree not clean at capture start', dirtyPaths: git.dirtyPaths }))
+  }
   const buildId = process.env.V2_BUILD_ID || `local-${new Date().toISOString()}`
   const { chromium } = await import('playwright')
   await mkdir(outDir, { recursive: true })
@@ -330,42 +497,53 @@ async function main() {
   await page.goto(`${BASE}/guide/visual-v2`, { waitUntil: 'networkidle', timeout: 60000 })
   const behaviors = await behaviorChecks(page)
   const evidence = []
+  const artifactPaths = []
 
   for (const shot of shots) {
     const url = `${BASE}/guide/visual-v2${shot.anchor}`
     await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 })
     await page.waitForSelector('.pt-button, .pt-table, .pt-input', { timeout: 30000 })
+    await frameDemo(page, shot.anchor)
     if (shot.setup) await shot.setup(page)
-    await page.waitForTimeout(400)
+    if (shot.verify) await shot.verify(page)
+    await page.waitForTimeout(shot.teardown ? 80 : 300)
     await assertBasics(page, shot)
     const metrics = await measure(page, shot.anchor, shot.metrics)
     const loc = page.locator(shot.anchor)
+    const filePath = resolve(outDir, shot.file)
+    await loc.screenshot({ path: filePath })
+    if (shot.teardown) await shot.teardown(page)
     const box = await loc.boundingBox()
-    await loc.screenshot({ path: resolve(outDir, shot.file) })
     evidence.push({
       file: shot.file,
+      absolutePath: filePath,
       url,
       anchor: shot.anchor,
       stateSetup: shot.state,
       pngSize: box ? { width: Math.round(box.width), height: Math.round(box.height) } : null,
       metrics
     })
+    artifactPaths.push(filePath)
   }
 
   const manifest = {
-    commitSha: sha,
+    ...git,
     buildId,
     capturedAt: new Date().toISOString(),
     docsBase: BASE,
     viewportCss: VIEWPORT,
     devicePixelRatio: DPR,
+    chromeHandling: 'Injected style hides VPNav/VPLocalNav/DocSearch only; scroll anchor into view; components unchanged',
     screenshots: evidence,
-    behaviorChecks: behaviors,
-    unsupportedOrDemoOnly: behaviors.unsupportedStates
+    artifactPaths,
+    behaviorChecks: behaviors
   }
-  await writeFile(resolve(outDir, 'capture-manifest.json'), JSON.stringify(manifest, null, 2))
-  await writeFile(resolve(outDir, 'behavior-checks.json'), JSON.stringify(behaviors, null, 2))
-  console.log(JSON.stringify({ ok: true, sha, outDir, shotCount: evidence.length }, null, 2))
+  const manifestPath = resolve(outDir, 'capture-manifest.json')
+  const behaviorPath = resolve(outDir, 'behavior-checks.json')
+  await writeFile(manifestPath, JSON.stringify(manifest, null, 2))
+  await writeFile(behaviorPath, JSON.stringify(behaviors, null, 2))
+  artifactPaths.push(manifestPath, behaviorPath)
+  console.log(JSON.stringify({ ok: true, commitSha: git.commitSha, worktreeClean: git.worktreeClean, outDir, shotCount: evidence.length }, null, 2))
   await browser.close()
 }
 

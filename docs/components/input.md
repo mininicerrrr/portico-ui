@@ -64,3 +64,19 @@ const password = ref('secret')
 | --- | --- |
 | prefix | 前置内容 |
 | suffix | 后置内容 |
+
+## 校验状态
+
+错误与成功外观由所在的 `PtFormItem` 驱动。`is-error` 会在校验失败时出现；`is-success` **仅当** `validate-status="success"` 时显示，不会在每次校验通过后自动出现。
+
+<DemoBox>
+  <pt-space direction="vertical" style="width: 100%">
+    <pt-form-item label="错误" validate-status="error" error="请填写名称" label-width="64px">
+      <pt-input model-value="" placeholder="必填" />
+    </pt-form-item>
+    <pt-form-item label="成功" validate-status="success" label-width="64px">
+      <pt-input model-value="Ada" />
+    </pt-form-item>
+  </pt-space>
+</DemoBox>
+

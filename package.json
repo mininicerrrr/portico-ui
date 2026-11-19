@@ -47,7 +47,8 @@
     "docs": "vitepress dev docs",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.app.json"
   },
   "devDependencies": {
     "@types/node": "^24.7.0",

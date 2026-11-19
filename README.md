@@ -9,7 +9,7 @@ English | [简体中文](./README.zh-CN.md)
 - Vue 3 + Vite + TypeScript, built in library mode
 - Plugin install (`app.use(PorticoUI)`) or on-demand imports
 - CSS variable theme: primary, success, warning, danger, info, radius, typography, and spacing
-- Light theme by default, with reserved dark tokens
+- Light theme by default, with a complete dark theme (`html.pt-dark` or `[data-pt-theme="dark"]`)
 - Prefix: `Pt` (`PtButton`, `PtInput`, …)
 - Package name: `portico-ui`
 
@@ -37,7 +37,27 @@ import 'portico-ui/style.css'
 
 ## Components
 
-`PtButton`, `PtInput`, `PtSelect` / `PtOption`, `PtCheckbox` / `PtCheckboxGroup`, `PtRadio` / `PtRadioGroup`, `PtSwitch`, `PtForm` / `PtFormItem`, `PtDialog`, `message`, `PtTag`, `PtCard`, `PtSpace`, `PtDivider`, `PtTable`.
+Form and data: `PtButton`, `PtInput`, `PtTextarea`, `PtInputNumber`, `PtSelect` / `PtOption`, `PtCheckbox` / `PtCheckboxGroup`, `PtRadio` / `PtRadioGroup`, `PtSwitch`, `PtForm` / `PtFormItem`, `PtDatePicker`, `PtUpload`, `PtTable`, `PtPagination`.
+
+Feedback and overlays: `PtDialog`, `PtDrawer`, `message`, `notify`, `PtAlert`, `PtTooltip`, `PtPopconfirm`, `PtDropdown` / `PtDropdownItem`.
+
+Display and navigation: `PtTag`, `PtBadge`, `PtCard`, `PtSpace`, `PtDivider`, `PtEmpty`, `PtSkeleton`, `PtBreadcrumb` / `PtBreadcrumbItem`, `PtTabs` / `PtTabPane`, `PtMenu` / `PtMenuItem` / `PtSubMenu`.
+
+`PtConfigProvider` supplies locale (default `zh-CN`, with a shipped `en` pack).
+
+## Theming and dark mode
+
+Import `portico-ui/style.css` once. Override CSS variables on `:root` or `.pt-theme`. Enable the dark skin with `html.pt-dark` or `[data-pt-theme="dark"]`.
+
+## Internationalization
+
+```ts
+import PorticoUI, { en, zhCN } from 'portico-ui'
+
+createApp(App).use(PorticoUI, { locale: zhCN }).mount('#app')
+// or wrap a subtree:
+// <pt-config-provider :locale="en">...</pt-config-provider>
+```
 
 ## Local development
 

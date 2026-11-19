@@ -4,6 +4,7 @@ import type { MessageType } from './types'
 import PtIcon from '../icons/PtIcon.vue'
 import { iconClose, iconError, iconInfo, iconSuccess, iconWarning } from '../icons/icons'
 import { removeMessage } from './store'
+import { useLocale } from '../../locale'
 
 const icons: Record<MessageType, string> = {
   success: iconSuccess,
@@ -11,6 +12,8 @@ const icons: Record<MessageType, string> = {
   info: iconInfo,
   error: iconError
 }
+
+const { t } = useLocale()
 
 const props = defineProps<{
   id: number
@@ -41,7 +44,7 @@ onBeforeUnmount(() => {
   <div class="pt-message" :class="`pt-message--${type}`" :role="type === 'error' ? 'alert' : 'status'">
     <pt-icon class="pt-message__icon" :path="icons[type]" />
     <span class="pt-message__text">{{ message }}</span>
-    <button v-if="showClose" type="button" class="pt-message__close" aria-label="Close" @click="close">
+    <button v-if="showClose" type="button" class="pt-message__close" :aria-label="t('message.close')" @click="close">
       <pt-icon :path="iconClose" />
     </button>
   </div>

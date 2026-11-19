@@ -16,7 +16,7 @@ describe('PtTag', () => {
       expect.arrayContaining(['pt-tag--danger', 'pt-tag--plain', 'is-round'])
     )
     expect(wrapper.text()).toContain('Expired')
-    await wrapper.get('button[aria-label="Remove"]').trigger('click')
+    await wrapper.get('.pt-tag__close').trigger('click')
     expect(wrapper.emitted('close')).toBeTruthy()
   })
 })

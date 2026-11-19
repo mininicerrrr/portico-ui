@@ -71,3 +71,12 @@ async function onSubmit() {
   </pt-form>
 </template>
 ```
+
+## 语言包
+
+默认使用 `zh-CN`。传入 `locale` 或使用 `PtConfigProvider` 即可切换：
+
+```ts
+import PorticoUI, { en } from 'portico-ui'
+createApp(App).use(PorticoUI, { locale: en }).mount('#app')
+```

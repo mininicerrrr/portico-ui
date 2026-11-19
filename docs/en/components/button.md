@@ -41,3 +41,31 @@ function mockLoad() {
 | disabled | Disabled | `boolean` | `false` |
 | loading | Loading, also disables the button | `boolean` | `false` |
 | nativeType | Native `type` | `'button' | 'submit' | 'reset'` | `'button'` |
+
+## Icon slot
+
+Pass an icon through the `icon` slot rather than a per-icon variant. Icon-only buttons should set `aria-label`.
+
+<DemoBox title="icon slot">
+  <pt-space>
+    <pt-button type="primary">
+      <template #icon>+</template>
+      Create
+    </pt-button>
+    <pt-button aria-label="More">⋯</pt-button>
+  </pt-space>
+</DemoBox>
+
+```vue
+<pt-button type="primary">
+  <template #icon>+</template>
+  Create
+</pt-button>
+```
+
+### Slots (extra)
+
+| Name | Description |
+| --- | --- |
+| icon | Optional icon to the left of the label; replaced by the spinner while loading |
+

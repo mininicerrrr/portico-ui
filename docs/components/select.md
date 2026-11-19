@@ -12,6 +12,13 @@ const options = [
   { label: '深圳', value: 'shenzhen' },
   { label: '维护中', value: 'offline', disabled: true }
 ]
+const cities = [
+  { label: '杭州', value: 'hz' },
+  { label: '上海', value: 'sh' },
+  { label: '深圳', value: 'sz' }
+]
+const multi = ref([])
+const queryValue = ref(null)
 </script>
 
 ## 基础用法
@@ -39,7 +46,7 @@ const options = [
 | --- | --- | --- | --- |
 | modelValue / v-model | 绑定值 | `string \| number \| boolean \| null` | — |
 | options | 选项列表 | `{ label: string; value: string \| number \| boolean; disabled?: boolean }[]` | `[]` |
-| placeholder | 占位文本 | `string` | `'Please select'` |
+| placeholder | 占位文本 | `string` | `请选择`（随语言包） |
 | disabled | 禁用 | `boolean` | `false` |
 | clearable | 可清空 | `boolean` | `true` |
 | size | 尺寸 | `'large' \| 'default' \| 'small'` | `'default'` |
@@ -51,3 +58,22 @@ const options = [
 | label | 展示文本 | `string` | 值为字符串时的文本 |
 | value | 选项值 | `string \| number \| boolean` | — |
 | disabled | 禁用该选项 | `boolean` | `false` |
+
+## 筛选、远程与多选
+
+`filterable` 支持输入过滤（或自定义 `filterMethod`）。`remote` 配合 `remoteMethod` 做远程搜索，并用 `loading` 展示加载中文案。`multiple` 以标签展示已选项，可用 `collapseTags` 与 `multipleLimit`。
+
+<DemoBox title="可筛选 / 多选">
+  <pt-space direction="vertical" style="width: 280px">
+    <pt-select v-model="queryValue" :options="cities" filterable placeholder="输入筛选" />
+    <pt-select v-model="multi" :options="cities" multiple collapse-tags />
+  </pt-space>
+</DemoBox>
+
+```vue
+<pt-select v-model="value" :options="cities" filterable />
+<pt-select v-model="multi" :options="cities" multiple collapse-tags />
+```
+
+补充 Props：`filterable`、`filterMethod`、`remote`、`remoteMethod`、`loading`、`loadingText`、`noMatchText`、`noDataText`、`multiple`、`collapseTags`、`multipleLimit`。`modelValue` 在多选时为数组。
+

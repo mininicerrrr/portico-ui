@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, inject, onBeforeUnmount, onMounted, watch } from 'vue'
 import { selectContextKey, type SelectOptionData } from './tokens'
+import PtIcon from '../icons/PtIcon.vue'
+import { iconCheck } from '../icons/icons'
 
 export interface OptionProps {
   label?: string
@@ -19,9 +21,10 @@ const data = computed<SelectOptionData>(() => ({
   disabled: props.disabled
 }))
 
-const isSelected = computed(() => select?.selected === props.value)
+const isSelected = computed(() => select?.isSelected(props.value) ?? false)
 const isHighlighted = computed(() => select?.highlighted === props.value)
 const optionId = computed(() => select?.optionId(props.value))
+const isVisible = computed(() => select?.isOptionVisible(props.value) ?? true)
 
 onMounted(() => select?.register(data.value))
 watch(data, (value, old) => {
@@ -39,6 +42,7 @@ function onPick() {
 
 <template>
   <li
+    v-show="isVisible"
     :id="optionId"
     class="pt-select__option"
     :class="{ 'is-selected': isSelected, 'is-highlighted': isHighlighted, 'is-disabled': disabled }"
@@ -47,6 +51,7 @@ function onPick() {
     :aria-disabled="disabled || undefined"
     @click.stop="onPick"
   >
-    <slot>{{ data.label }}</slot>
+    <span class="pt-select__option-label"><slot>{{ data.label }}</slot></span>
+    <pt-icon v-if="isSelected" class="pt-select__option-check" :path="iconCheck" />
   </li>
 </template>

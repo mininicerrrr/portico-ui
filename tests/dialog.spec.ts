@@ -54,3 +54,29 @@ describe('PtDialog', () => {
     wrapper.unmount()
   })
 })
+
+  it('maps size to official widths and lets width override', async () => {
+    const small = mount(PtDialog, {
+      props: { modelValue: true, title: 'S', size: 'small' },
+      attachTo: document.body
+    })
+    await nextTick()
+    expect((document.body.querySelector('.pt-dialog__panel') as HTMLElement).style.width).toBe('360px')
+    small.unmount()
+
+    const large = mount(PtDialog, {
+      props: { modelValue: true, title: 'L', size: 'large' },
+      attachTo: document.body
+    })
+    await nextTick()
+    expect((document.body.querySelector('.pt-dialog__panel') as HTMLElement).style.width).toBe('640px')
+    large.unmount()
+
+    const custom = mount(PtDialog, {
+      props: { modelValue: true, title: 'C', size: 'small', width: '720px' },
+      attachTo: document.body
+    })
+    await nextTick()
+    expect((document.body.querySelector('.pt-dialog__panel') as HTMLElement).style.width).toBe('720px')
+    custom.unmount()
+  })

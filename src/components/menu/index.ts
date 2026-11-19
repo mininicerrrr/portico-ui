@@ -1,0 +1,6 @@
+export { default as PtMenu } from './Menu.vue'
+export { default as PtMenuItem } from './MenuItem.vue'
+export { default as PtSubMenu } from './SubMenu.vue'
+export type { MenuProps, MenuMode } from './Menu.vue'
+export type { MenuItemProps } from './MenuItem.vue'
+export type { SubMenuProps } from './SubMenu.vue'

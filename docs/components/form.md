@@ -104,5 +104,11 @@ function onReset() {
 | required | 标记必填 | `boolean` | `false` |
 | rules | 单项规则 | `FormRule \| FormRule[]` | — |
 | error | 外部传入的错误文案 | `string` | — |
+| validateStatus | 显式校验态，成功仅在值为 success 时显示 | `'error' \| 'success' \| ''` | — |
 | labelWidth | 覆盖表单标签宽度 | `string` | — |
 | showMessage | 是否显示错误 | `boolean` | `true` |
+
+## 成功状态
+
+`PtFormItem` 增加了可选的 `validateStatus`（`'error' | 'success' | ''`）。成功环只在 `validateStatus="success"` 时出现，校验通过不会自动加上成功态。默认标签宽度使用 `--pt-form-label-width`（96px）。
+

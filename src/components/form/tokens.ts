@@ -1,6 +1,8 @@
 import type { InjectionKey } from 'vue'
 import type { FormRules, FormValidateCallback, FormValidationError } from './types'
 
+export type FormValidateStatus = 'error' | 'success' | ''
+
 export interface FormContext {
   model: Record<string, unknown>
   rules?: FormRules
@@ -19,6 +21,7 @@ export interface FormItemContext {
   inputId: string
   errorId: string
   error: string
+  validateState: FormValidateStatus
   validate: (trigger?: string) => Promise<boolean>
   resetField: () => void
   clearValidate: () => void

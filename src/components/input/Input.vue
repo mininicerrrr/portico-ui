@@ -2,6 +2,7 @@
 import { computed, inject, onMounted, ref } from 'vue'
 import { formItemContextKey } from '../form/tokens'
 import { useFormDisabled } from '../../utils/use-form-disabled'
+import { useLocale } from '../../locale'
 import PtIcon from '../icons/PtIcon.vue'
 import { iconClear, iconEye, iconEyeOff } from '../icons/icons'
 
@@ -41,6 +42,7 @@ const emit = defineEmits<{
 }>()
 
 const formItem = inject(formItemContextKey, undefined)
+const { t } = useLocale()
 const focused = ref(false)
 const hovering = ref(false)
 const passwordVisible = ref(false)
@@ -64,6 +66,7 @@ const showClear = computed(
     (focused.value || hovering.value)
 )
 const showPwd = computed(() => isPassword.value && !isDisabled.value && text.value.length > 0)
+const validateState = computed(() => formItem?.validateState || '')
 
 function setValue(value: string) {
   emit('update:modelValue', value)
@@ -128,6 +131,8 @@ defineExpose({ focus, blur, input: inputRef })
       {
         'is-disabled': isDisabled,
         'is-focus': focused,
+        'is-error': validateState === 'error',
+        'is-success': validateState === 'success',
         'has-suffix': showClear || showPwd || $slots.suffix,
         'has-prefix': $slots.prefix
       }
@@ -152,8 +157,8 @@ defineExpose({ focus, blur, input: inputRef })
       :autocomplete="autocomplete"
       :name="name"
       :aria-label="ariaLabel"
-      :aria-invalid="formItem?.error ? true : undefined"
-      :aria-describedby="formItem?.error ? formItem.errorId : undefined"
+      :aria-invalid="validateState === 'error' ? true : undefined"
+      :aria-describedby="validateState === 'error' ? formItem?.errorId : undefined"
       @input="onInput"
       @change="onChange"
       @focus="onFocus"
@@ -164,7 +169,8 @@ defineExpose({ focus, blur, input: inputRef })
         v-if="showClear"
         type="button"
         class="pt-input__icon-btn"
-        aria-label="Clear"
+        data-pt="clear"
+        :aria-label="t('input.clear')"
         tabindex="-1"
         @click="clear"
       >
@@ -174,7 +180,8 @@ defineExpose({ focus, blur, input: inputRef })
         v-if="showPwd"
         type="button"
         class="pt-input__icon-btn"
-        :aria-label="passwordVisible ? 'Hide password' : 'Show password'"
+        data-pt="password"
+        :aria-label="passwordVisible ? t('input.hidePassword') : t('input.showPassword')"
         :aria-pressed="passwordVisible"
         tabindex="-1"
         @click="togglePassword"

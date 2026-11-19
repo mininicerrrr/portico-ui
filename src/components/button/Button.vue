@@ -14,6 +14,7 @@ export interface ButtonProps {
   loading?: boolean
   nativeType?: 'button' | 'submit' | 'reset'
   autofocus?: boolean
+  ariaLabel?: string
 }
 
 defineOptions({ name: 'PtButton' })
@@ -43,9 +44,11 @@ const classes = computed(() => [
     :type="nativeType"
     :disabled="disabled || loading"
     :aria-busy="loading ? true : undefined"
+    :aria-label="ariaLabel"
     :autofocus="autofocus || undefined"
   >
     <pt-spinner v-if="loading" class="pt-button__spinner" />
+    <span v-if="$slots.icon && !loading" class="pt-button__icon"><slot name="icon" /></span>
     <span class="pt-button__content"><slot /></span>
   </button>
 </template>

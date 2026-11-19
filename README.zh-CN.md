@@ -9,7 +9,7 @@
 - Vue 3 + Vite + TypeScript，库模式构建
 - 支持插件全量注册（`app.use(PorticoUI)`）与按需引入
 - CSS 变量主题：主色、成功、警告、危险、信息，以及圆角、字号与间距
-- 默认亮色，并预留暗色变量
+- 默认亮色，并提供完整暗色主题（`html.pt-dark` 或 `[data-pt-theme="dark"]`）
 - 组件前缀：`Pt`（如 `PtButton`、`PtInput`）
 - npm 包名：`portico-ui`
 
@@ -37,7 +37,27 @@ import 'portico-ui/style.css'
 
 ## 组件
 
-`PtButton`、`PtInput`、`PtSelect` / `PtOption`、`PtCheckbox` / `PtCheckboxGroup`、`PtRadio` / `PtRadioGroup`、`PtSwitch`、`PtForm` / `PtFormItem`、`PtDialog`、`message`、`PtTag`、`PtCard`、`PtSpace`、`PtDivider`、`PtTable`。
+表单与数据：`PtButton`、`PtInput`、`PtTextarea`、`PtInputNumber`、`PtSelect` / `PtOption`、`PtCheckbox` / `PtCheckboxGroup`、`PtRadio` / `PtRadioGroup`、`PtSwitch`、`PtForm` / `PtFormItem`、`PtDatePicker`、`PtUpload`、`PtTable`、`PtPagination`。
+
+反馈与浮层：`PtDialog`、`PtDrawer`、`message`、`notify`、`PtAlert`、`PtTooltip`、`PtPopconfirm`、`PtDropdown` / `PtDropdownItem`。
+
+展示与导航：`PtTag`、`PtBadge`、`PtCard`、`PtSpace`、`PtDivider`、`PtEmpty`、`PtSkeleton`、`PtBreadcrumb` / `PtBreadcrumbItem`、`PtTabs` / `PtTabPane`、`PtMenu` / `PtMenuItem` / `PtSubMenu`。
+
+`PtConfigProvider` 用于注入语言包（默认 `zh-CN`，同时提供 `en`）。
+
+## 主题与暗色
+
+引入一次 `portico-ui/style.css`。可在 `:root` 或 `.pt-theme` 上覆盖 CSS 变量。通过 `html.pt-dark` 或 `[data-pt-theme="dark"]` 启用暗色皮肤。
+
+## 国际化
+
+```ts
+import PorticoUI, { en, zhCN } from 'portico-ui'
+
+createApp(App).use(PorticoUI, { locale: zhCN }).mount('#app')
+// 或局部包裹：
+// <pt-config-provider :locale="en">...</pt-config-provider>
+```
 
 ## 本地开发
 

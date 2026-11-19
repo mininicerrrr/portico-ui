@@ -1,15 +1,19 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { lockBodyScroll } from '../../utils/dom'
 import { trapFocus, getFocusable } from '../../utils/focus-trap'
 import { ptId } from '../../utils/id'
+import { useLocale } from '../../locale'
 import PtIcon from '../icons/PtIcon.vue'
 import { iconClose } from '../icons/icons'
+
+export type DialogSize = 'small' | 'default' | 'large'
 
 export interface DialogProps {
   modelValue?: boolean
   title?: string
   width?: string
+  size?: DialogSize
   closeOnClickModal?: boolean
   closeOnPressEscape?: boolean
   showClose?: boolean
@@ -17,10 +21,16 @@ export interface DialogProps {
   appendToBody?: boolean
 }
 
+const SIZE_WIDTH: Record<DialogSize, string> = {
+  small: '360px',
+  default: '480px',
+  large: '640px'
+}
+
 defineOptions({ name: 'PtDialog' })
 
 const props = withDefaults(defineProps<DialogProps>(), {
-  width: '480px',
+  size: 'default',
   closeOnClickModal: true,
   closeOnPressEscape: true,
   showClose: true,
@@ -35,6 +45,7 @@ const emit = defineEmits<{
   closed: []
 }>()
 
+const { t } = useLocale()
 const visible = ref(false)
 const rendered = ref(false)
 const panelRef = ref<HTMLElement>()
@@ -42,6 +53,8 @@ const titleId = ptId('pt-dialog-title')
 let releaseFocus: (() => void) | undefined
 let releaseScroll: (() => void) | undefined
 let lastFocus: HTMLElement | null = null
+
+const panelWidth = computed(() => props.width || SIZE_WIDTH[props.size])
 
 function close() {
   if (!props.modelValue) return
@@ -111,11 +124,11 @@ onBeforeUnmount(() => teardown())
       <div
         ref="panelRef"
         class="pt-dialog__panel"
-        :style="{ width }"
+        :class="`pt-dialog__panel--${size}`"
+        :style="{ width: panelWidth }"
         role="dialog"
         aria-modal="true"
         :aria-labelledby="title || $slots.header ? titleId : undefined"
-        :aria-label="!title && !$slots.header ? 'Dialog' : undefined"
         tabindex="-1"
       >
         <header class="pt-dialog__header" :id="!title && $slots.header ? titleId : undefined">
@@ -126,7 +139,7 @@ onBeforeUnmount(() => teardown())
             v-if="showClose"
             type="button"
             class="pt-dialog__close"
-            aria-label="Close"
+            :aria-label="t('dialog.close')"
             @click="close"
           >
             <pt-icon :path="iconClose" />

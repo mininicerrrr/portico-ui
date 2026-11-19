@@ -16,6 +16,16 @@ const data = [
   { id: 3, name: 'Chen', role: '访客', status: '停用', note: '只读' }
 ]
 const empty = []
+const sortColumns = [
+  { prop: 'name', label: '名称', sortable: true },
+  { prop: 'count', label: '数量', sortable: true }
+]
+const sortData = [
+  { id: 1, name: '林', count: 3 },
+  { id: 2, name: '艾达', count: 9 },
+  { id: 3, name: '博', count: 1 }
+]
+const loading = ref(false)
 </script>
 
 ## 基础用法
@@ -48,13 +58,17 @@ const empty = []
 | data | 行数据 | `object[]` | `[]` |
 | stripe | 斑马纹 | `boolean` | `false` |
 | border | 单元格边框 | `boolean` | `false` |
-| emptyText | 空状态文案 | `string` | `'No data'` |
+| emptyText | 空状态文案 | `string` | `暂无数据`（随语言包） |
 | rowKey | 行键名或函数 | `string \| Function` | `'id'` |
 | maxHeight | 最大高度，超出滚动 | `string \| number` | — |
+| loading | 表格加载遮罩 | `boolean` | `false` |
+| highlightCurrentRow | 点击高亮当前行 | `boolean` | `false` |
+| virtual | 显式开启虚拟滚动 | `boolean` | `false` |
+| rowHeight | 虚拟行高 | `number` | `41` |
 
 ### TableColumn
 
-`prop`、`label`、`width`、`minWidth`、`align`、`formatter`、`slot`（具名单元格插槽）。
+`prop`、`label`、`width`、`minWidth`、`align`、`formatter`、`slot`、`sortable`（`true` 或 `custom`）、`sortMethod`。事件：`sort-change`、`current-change`。
 
 ### Slots
 
@@ -63,3 +77,21 @@ const empty = []
 | cell | 通用单元格，作用域含 `row`、`column`、`index`、`value` |
 | empty | 自定义空状态 |
 | [column.slot] | 按列配置的具名插槽 |
+
+## 排序、加载与虚拟滚动
+
+列可设置 `sortable` 或 `sortMethod`；点击表头会发出 `sort-change`。`loading` 在表格上显示遮罩，而不是锁住整个页面。只有显式设置 `virtual` 时才会虚拟滚动（建议同时提供 `maxHeight`）。
+
+<DemoBox>
+  <pt-space style="margin-bottom: 12px">
+    <pt-button size="small" @click="loading = !loading">切换加载</pt-button>
+  </pt-space>
+  <pt-table :columns="sortColumns" :data="sortData" :loading="loading" stripe />
+</DemoBox>
+
+`virtual` 示例（大数据量时使用）：
+
+```vue
+<pt-table :columns="columns" :data="rows" virtual :max-height="320" />
+```
+

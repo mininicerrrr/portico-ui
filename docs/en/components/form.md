@@ -76,6 +76,12 @@ Call these on a `ref` to `PtForm`.
 | required | Mark as required | `boolean` | `false` |
 | rules | Field-level rules | `FormRule \| FormRule[]` | — |
 | error | External error message | `string` | — |
+| validateStatus | Explicit status; success shows only when set to success | `'error' \| 'success' \| ''` | — |
 | labelWidth | Override the form label width | `string` | — |
 | showMessage | Show the error message | `boolean` | `true` |
 | size | Override the form size | `'large' \| 'default' \| 'small'` | — |
+
+## Success state
+
+`PtFormItem` accepts an optional `validateStatus` (`'error' | 'success' | ''`). The success ring appears only when `validateStatus="success"`; a passing validation does not enable it automatically. The default label width uses `--pt-form-label-width` (96px).
+

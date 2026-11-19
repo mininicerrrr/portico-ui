@@ -16,9 +16,9 @@ hero:
       link: /components/button
 features:
   - title: 实用的表单控件
-    details: 覆盖按钮、输入、选择、开关、校验表单和对话框等后台界面常见构件。
+    details: 覆盖表单、表格、分页、日期、上传、对话框、抽屉、通知与导航等后台界面常见构件。
   - title: 设计变量主题
-    details: 通过 CSS 变量调整主色、语义色、圆角、字号与间距，并预留了暗色令牌。
+    details: 通过 CSS 变量调整主色、语义色、圆角、字号与间距，并提供完整的亮/暗色令牌与中英文案。
   - title: 可维护的工程结构
     details: Vue 3 + Vite + TypeScript 库模式构建，附带类型、单元测试与文档站点。
 ---

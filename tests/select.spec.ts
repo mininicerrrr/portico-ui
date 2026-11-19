@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import { PtSelect, PtOption } from '../src/components/select'
@@ -57,7 +57,7 @@ describe('PtSelect', () => {
 
   it('clears the value and honors the disabled state', async () => {
     const clearable = mount(PtSelect, { props: { modelValue: 'vue', options, clearable: true } })
-    await clearable.get('button[aria-label="Clear"]').trigger('click')
+    await clearable.get('[data-pt="clear"]').trigger('click')
     expect(clearable.emitted('update:modelValue')?.[0]).toEqual([null])
 
     const disabled = mount(PtSelect, { props: { modelValue: 'vue', options, disabled: true } })
@@ -77,5 +77,67 @@ describe('PtSelect', () => {
     await wrapper.get('[role="combobox"]').trigger('click')
     await nextTick()
     expect(wrapper.findAll('[role="option"]').map((node) => node.text())).toEqual(['Alpha', 'Beta'])
+  })
+})
+
+describe('PtSelect extras', () => {
+  it('filters options when filterable', async () => {
+    const wrapper = mount(PtSelect, {
+      props: { modelValue: null, options, filterable: true },
+      attachTo: document.body
+    })
+    const input = wrapper.get('.pt-select__input')
+    await input.setValue('Type')
+    await nextTick()
+    const visible = wrapper.findAll('[role="option"]').filter((node) => node.isVisible())
+    expect(visible.map((node) => node.text())).toEqual(['TypeScript'])
+    wrapper.unmount()
+  })
+
+  it('calls remoteMethod when remote and the query changes', async () => {
+    const remoteMethod = vi.fn()
+    const wrapper = mount(PtSelect, {
+      props: { modelValue: null, options, filterable: true, remote: true, remoteMethod },
+      attachTo: document.body
+    })
+    await wrapper.get('.pt-select__input').setValue('vi')
+    await nextTick()
+    expect(remoteMethod).toHaveBeenCalledWith('vi')
+    wrapper.unmount()
+  })
+
+  it('supports multiple selection and tag removal', async () => {
+    const wrapper = mount(
+      {
+        components: { PtSelect },
+        template: '<pt-select v-model="value" :options="options" multiple />',
+        data: () => ({ value: [] as Array<string | number | boolean>, options })
+      },
+      { attachTo: document.body }
+    )
+    await wrapper.get('[role="combobox"]').trigger('click')
+    await nextTick()
+    await wrapper.findAll('[role="option"]')[0].trigger('click')
+    await wrapper.findAll('[role="option"]')[1].trigger('click')
+    expect((wrapper.vm as unknown as { value: string[] }).value).toEqual(['vue', 'ts'])
+    await nextTick()
+    expect(wrapper.findAll('.pt-tag').map((node) => node.text().replace(/\s+/g, ''))).toEqual(['Vue', 'TypeScript'])
+    await wrapper.findAll('.pt-tag__close')[0].trigger('click')
+    expect((wrapper.vm as unknown as { value: string[] }).value).toEqual(['ts'])
+    wrapper.unmount()
+  })
+
+  it('shows loading and empty copy from locale', async () => {
+    const wrapper = mount(PtSelect, {
+      props: { modelValue: null, options: [], loading: true },
+      attachTo: document.body
+    })
+    await wrapper.get('[role="combobox"]').trigger('click')
+    await nextTick()
+    expect(wrapper.get('.pt-select__loading').text()).toContain('加载中')
+    await wrapper.setProps({ loading: false })
+    await nextTick()
+    expect(wrapper.get('.pt-select__empty').text()).toBe('暂无数据')
+    wrapper.unmount()
   })
 })

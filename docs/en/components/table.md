@@ -3,15 +3,29 @@
 Renders `columns` and `data`, and shows an empty state when there are no rows. Column slots receive `{ row, column, index, value }`.
 
 <script setup>
+import { ref } from 'vue'
 const columns = [
   { prop: 'name', label: 'Name', width: 140 },
-  { prop: 'role', label: 'Role' },
-  { prop: 'status', label: 'Status', slot: 'status' }
+  { prop: 'role', label: 'Role', width: 120 },
+  { prop: 'status', label: 'Status', slot: 'status' },
+  { prop: 'note', label: 'Note' }
 ]
 const data = [
-  { id: 1, name: 'Ada', role: 'Admin', status: 'Active' },
-  { id: 2, name: 'Lin', role: 'Editor', status: 'Idle' }
+  { id: 1, name: 'Ada', role: 'Admin', status: 'Active', note: 'Manages all modules' },
+  { id: 2, name: 'Lin', role: 'Editor', status: 'Active', note: 'Maintains docs' },
+  { id: 3, name: 'Chen', role: 'Guest', status: 'Disabled', note: 'Read only' }
 ]
+const empty = []
+const sortColumns = [
+  { prop: 'name', label: 'Name', sortable: true },
+  { prop: 'count', label: 'Count', sortable: true }
+]
+const sortData = [
+  { id: 1, name: 'Lin', count: 3 },
+  { id: 2, name: 'Ada', count: 9 },
+  { id: 3, name: 'Bo', count: 1 }
+]
+const loading = ref(false)
 </script>
 
 ## Basic usage
@@ -34,9 +48,13 @@ const data = [
 | data | Row data | `object[]` | `[]` |
 | stripe | Zebra rows | `boolean` | `false` |
 | border | Cell borders | `boolean` | `false` |
-| emptyText | Empty-state text | `string` | `'No data'` |
+| emptyText | Empty-state text | `string` | `No data` (locale) |
 | rowKey | Unique row key, or a function | `string \| ((row, index) => string)` | `'id'` |
 | maxHeight | Scroll the body when content exceeds this height | `string \| number` | — |
+| loading | Overlay spinner | `boolean` | `false` |
+| highlightCurrentRow | Highlight the clicked row | `boolean` | `false` |
+| virtual | Enable virtual scroll explicitly | `boolean` | `false` |
+| rowHeight | Virtual row height | `number` | `41` |
 
 ## TableColumn
 
@@ -56,3 +74,21 @@ const data = [
 | [column.slot] | Custom cell for a named column |
 | cell | Fallback custom cell for every column without a named slot |
 | empty | Empty state |
+
+## Sorting, loading, and virtual scroll
+
+Mark a column `sortable` or provide `sortMethod`. Header clicks emit `sort-change`. `loading` paints an overlay on the table instead of blocking the page. Virtualization runs only when the `virtual` prop is set (combine it with `maxHeight`).
+
+<DemoBox>
+  <pt-space style="margin-bottom: 12px">
+    <pt-button size="small" @click="loading = !loading">Toggle loading</pt-button>
+  </pt-space>
+  <pt-table :columns="sortColumns" :data="sortData" :loading="loading" stripe />
+</DemoBox>
+
+Virtual example:
+
+```vue
+<pt-table :columns="columns" :data="rows" virtual :max-height="320" />
+```
+

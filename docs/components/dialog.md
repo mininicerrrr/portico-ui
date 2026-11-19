@@ -5,6 +5,8 @@
 <script setup>
 import { ref } from 'vue'
 const visible = ref(false)
+const open = ref(false)
+const current = ref('default')
 </script>
 
 ## 基础用法
@@ -39,6 +41,7 @@ const visible = ref(false)
 | modelValue / v-model | 是否显示 | `boolean` | `false` |
 | title | 标题 | `string` | — |
 | width | 面板宽度 | `string` | `'480px'` |
+| size | 官方宽度 small/default/large（360/480/640） | `'small' \| 'default' \| 'large'` | `'default'` |
 | closeOnClickModal | 点击遮罩关闭 | `boolean` | `true` |
 | closeOnPressEscape | 按 Esc 关闭 | `boolean` | `true` |
 | showClose | 显示关闭按钮 | `boolean` | `true` |
@@ -56,3 +59,17 @@ const visible = ref(false)
 ### Events
 
 `open`、`opened`、`close`、`closed`、`update:modelValue`。
+
+## 尺寸
+
+`size` 为官方宽度：`small` 360px、`default` 480px、`large` 640px。传入 `width` 时以自定义宽度为准。
+
+<DemoBox>
+  <pt-space>
+    <pt-button @click="current = 'small'; open = true">小</pt-button>
+    <pt-button @click="current = 'default'; open = true">默认</pt-button>
+    <pt-button @click="current = 'large'; open = true">大</pt-button>
+  </pt-space>
+  <pt-dialog v-model="open" title="对话框" :size="current">内容</pt-dialog>
+</DemoBox>
+

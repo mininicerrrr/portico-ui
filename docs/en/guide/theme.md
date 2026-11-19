@@ -1,6 +1,6 @@
 # Design tokens
 
-Portico UI is themed with CSS custom properties. The default appearance is a light theme. Dark tokens are reserved on `html.pt-dark` and `[data-pt-theme="dark"]` for later work; they are not a complete dark theme yet.
+Portico UI is themed with CSS custom properties. The default appearance is a complete light theme. Add `html.pt-dark` or `[data-pt-theme="dark"]` for the complete dark skin, including semantic colors, focus rings, shadows, the switch track, and inverse text.
 
 ## Overrides
 
@@ -14,21 +14,29 @@ Portico UI is themed with CSS custom properties. The default appearance is a lig
 }
 ```
 
+Enable dark mode:
+
+```html
+<html class="pt-dark">
+<!-- or -->
+<div data-pt-theme="dark">...</div>
+```
+
+Motion honors `prefers-reduced-motion: reduce`. The font stack is led by Noto Sans SC, and the default transition is `--pt-ease` (`180ms ease`).
+
 ## Common tokens
 
-| Token | Default | Role |
+| Token | Light default | Role |
 | --- | --- | --- |
 | `--pt-color-primary` | `#3b7ddd` | Primary |
-| `--pt-color-success` | `#2f9e5c` | Success |
-| `--pt-color-warning` | `#d89a2a` | Warning |
-| `--pt-color-danger` | `#e05353` | Danger |
-| `--pt-color-info` | `#7a8390` | Info |
-| `--pt-text-color` | `#1f2a37` | Primary text |
-| `--pt-border-color` | `#d7dde5` | Border |
-| `--pt-bg` | `#ffffff` | Surface |
-| `--pt-bg-page` | `#f5f7fa` | Page background |
-| `--pt-radius` | `6px` | Radius |
-| `--pt-font-size` | `14px` | Font size |
+| `--pt-text-inverse` | `#ffffff` | Inverse text on filled buttons, solid tags, and badges |
+| `--pt-switch-track` | `#c5ccd4` / dark `#5c6570` | Switch off track |
+| `--pt-font-size-xl` / `--pt-font-size-xxl` | `20px` / `24px` | Title sizes |
+| `--pt-z-tooltip` / `--pt-z-notification` | `2500` / `4500` | Tooltip and notification layers |
+| `--pt-sidebar-width` | `232px` | Sidebar width (56px when collapsed) |
+| `--pt-header-height` | `56px` | Header height |
+| `--pt-form-label-width` | `96px` | Default form label width |
 | `--pt-control-h` | `34px` | Control height |
+| `--pt-ease` | `180ms ease` | Motion |
 
-See `src/styles/theme.css` for the full list. The palette is close to familiar Chinese admin UI conventions, but the values are original and not a pixel-accurate copy of another library.
+See `src/styles/theme.css` for the full list. Values are original and not a pixel-accurate copy of another library.

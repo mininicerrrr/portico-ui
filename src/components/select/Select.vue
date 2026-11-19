@@ -3,15 +3,19 @@ import { computed, inject, nextTick, onBeforeUnmount, onMounted, provide, ref, w
 import { formItemContextKey } from '../form/tokens'
 import { useFormDisabled } from '../../utils/use-form-disabled'
 import { ptId } from '../../utils/id'
+import { useLocale } from '../../locale'
 import PtIcon from '../icons/PtIcon.vue'
+import PtSpinner from '../icons/PtSpinner.vue'
 import { iconChevron, iconClear } from '../icons/icons'
-import { selectContextKey, type SelectOptionData } from './tokens'
+import { selectContextKey, type SelectOptionData, type SelectValue } from './tokens'
 import PtOption from './Option.vue'
+import PtTag from '../tag/Tag.vue'
 
 export type SelectSize = 'large' | 'default' | 'small'
+export type { SelectValue }
 
 export interface SelectProps {
-  modelValue?: string | number | boolean | null
+  modelValue?: SelectValue
   options?: SelectOptionData[]
   placeholder?: string
   disabled?: boolean
@@ -20,33 +24,63 @@ export interface SelectProps {
   id?: string
   name?: string
   ariaLabel?: string
+  filterable?: boolean
+  filterMethod?: (query: string, option: SelectOptionData) => boolean
+  remote?: boolean
+  remoteMethod?: (query: string) => void
+  loading?: boolean
+  loadingText?: string
+  noMatchText?: string
+  noDataText?: string
+  multiple?: boolean
+  collapseTags?: boolean
+  multipleLimit?: number
 }
 
 defineOptions({ name: 'PtSelect' })
 
 const props = withDefaults(defineProps<SelectProps>(), {
-  placeholder: 'Please select',
   options: () => [],
-  clearable: true
+  clearable: true,
+  multipleLimit: 0
 })
 
 const emit = defineEmits<{
-  'update:modelValue': [value: string | number | boolean | null]
-  change: [value: string | number | boolean | null]
+  'update:modelValue': [value: SelectValue]
+  change: [value: SelectValue]
   visibleChange: [visible: boolean]
+  blur: [event: FocusEvent]
+  focus: [event: FocusEvent]
 }>()
 
+const { t } = useLocale()
 const formItem = inject(formItemContextKey, undefined)
 const opened = ref(false)
 const rootRef = ref<HTMLElement>()
 const listRef = ref<HTMLElement>()
+const filterRef = ref<HTMLInputElement>()
 const listboxId = ptId('pt-listbox')
 const slotted = ref<SelectOptionData[]>([])
 const highlighted = ref<SelectOptionData['value'] | null>(null)
+const query = ref('')
+const hovering = ref(false)
 
 const inputId = computed(() => props.id || formItem?.inputId)
 const size = computed(() => props.size || formItem?.size || 'default')
 const isDisabled = useFormDisabled(() => props.disabled)
+const validateState = computed(() => formItem?.validateState || '')
+const placeholderText = computed(() => props.placeholder ?? t('select.placeholder'))
+const loadingLabel = computed(() => props.loadingText ?? t('select.loadingText'))
+const noMatchLabel = computed(() => props.noMatchText ?? t('select.noMatchText'))
+const noDataLabel = computed(() => props.noDataText ?? t('select.noDataText'))
+
+const selectedValues = computed<(string | number | boolean)[]>(() => {
+  if (props.multiple) {
+    return Array.isArray(props.modelValue) ? props.modelValue : []
+  }
+  return props.modelValue == null || props.modelValue === '' ? [] : [props.modelValue as string | number | boolean]
+})
+
 const allOptions = computed(() => {
   const map = new Map<string, SelectOptionData>()
   for (const item of [...props.options, ...slotted.value]) {
@@ -54,11 +88,43 @@ const allOptions = computed(() => {
   }
   return Array.from(map.values())
 })
-const enabledOptions = computed(() => allOptions.value.filter((item) => !item.disabled))
-const selectedOption = computed(() => allOptions.value.find((item) => item.value === props.modelValue))
-const displayLabel = computed(() => selectedOption.value?.label ?? '')
+
+const filteredOptions = computed(() => {
+  if (props.remote) return allOptions.value
+  const q = query.value.trim()
+  if (!props.filterable || !q) return allOptions.value
+  if (props.filterMethod) return allOptions.value.filter((item) => props.filterMethod!(q, item))
+  const lower = q.toLowerCase()
+  return allOptions.value.filter((item) => item.label.toLowerCase().includes(lower))
+})
+
+const enabledOptions = computed(() => filteredOptions.value.filter((item) => !item.disabled))
+const selectedOptions = computed(() =>
+  selectedValues.value
+    .map((value) => allOptions.value.find((item) => item.value === value))
+    .filter((item): item is SelectOptionData => Boolean(item))
+)
+const displayLabel = computed(() => (props.multiple ? '' : selectedOptions.value[0]?.label ?? ''))
+const hasValue = computed(() => selectedValues.value.length > 0)
 const showClear = computed(
-  () => props.clearable && !isDisabled.value && props.modelValue != null && props.modelValue !== ''
+  () => props.clearable && !isDisabled.value && hasValue.value && (opened.value || hovering.value || true)
+)
+const visibleTags = computed(() => {
+  if (!props.multiple) return []
+  if (props.collapseTags && selectedOptions.value.length > 1) return selectedOptions.value.slice(0, 1)
+  return selectedOptions.value
+})
+const hiddenTagCount = computed(() =>
+  props.multiple && props.collapseTags ? Math.max(0, selectedOptions.value.length - 1) : 0
+)
+const panelEmptyText = computed(() => {
+  if (props.loading) return loadingLabel.value
+  if (allOptions.value.length === 0) return noDataLabel.value
+  if (filteredOptions.value.length === 0) return noMatchLabel.value
+  return ''
+})
+const atLimit = computed(
+  () => props.multiple && props.multipleLimit > 0 && selectedValues.value.length >= props.multipleLimit
 )
 const activeDescendant = computed(() =>
   opened.value && highlighted.value != null ? optionId(highlighted.value) : undefined
@@ -68,15 +134,20 @@ function optionId(value: SelectOptionData['value']) {
   return `${listboxId}-opt-${String(value)}`
 }
 
+function isSelected(value: SelectOptionData['value']) {
+  return selectedValues.value.includes(value)
+}
+
 function close() {
   if (!opened.value) return
   opened.value = false
   highlighted.value = null
+  if (!props.remote) query.value = ''
   emit('visibleChange', false)
 }
 
 function syncHighlight() {
-  const selected = selectedOption.value
+  const selected = enabledOptions.value.find((item) => isSelected(item.value))
   const first = enabledOptions.value[0]
   highlighted.value = selected?.value ?? first?.value ?? null
   nextTick(() => {
@@ -90,6 +161,7 @@ function open() {
   opened.value = true
   emit('visibleChange', true)
   syncHighlight()
+  nextTick(() => filterRef.value?.focus())
 }
 
 function toggle() {
@@ -98,7 +170,7 @@ function toggle() {
   else open()
 }
 
-function apply(value: string | number | boolean | null) {
+function apply(value: SelectValue) {
   emit('update:modelValue', value)
   emit('change', value)
   formItem?.setValue(value)
@@ -107,15 +179,40 @@ function apply(value: string | number | boolean | null) {
 
 function select(option: SelectOptionData) {
   if (option.disabled) return
+  if (props.multiple) {
+    const current = [...selectedValues.value]
+    const index = current.indexOf(option.value)
+    if (index >= 0) current.splice(index, 1)
+    else {
+      if (atLimit.value) return
+      current.push(option.value)
+    }
+    apply(current)
+    query.value = ''
+    if (props.remote) props.remoteMethod?.(query.value)
+    nextTick(() => {
+      syncHighlight()
+      filterRef.value?.focus()
+    })
+    return
+  }
   apply(option.value)
+  query.value = ''
   close()
   rootRef.value?.querySelector<HTMLElement>('.pt-select__control')?.focus()
 }
 
 function clear(event: Event) {
   event.stopPropagation()
-  apply(null)
+  apply(props.multiple ? [] : null)
+  query.value = ''
   close()
+}
+
+function removeTag(option: SelectOptionData, event: Event) {
+  event.stopPropagation()
+  if (isDisabled.value) return
+  apply(selectedValues.value.filter((value) => value !== option.value))
 }
 
 function moveHighlight(delta: number) {
@@ -128,6 +225,13 @@ function moveHighlight(delta: number) {
   nextTick(() => {
     listRef.value?.querySelector<HTMLElement>('.is-highlighted')?.scrollIntoView?.({ block: 'nearest' })
   })
+}
+
+function onFilterInput(event: Event) {
+  query.value = (event.target as HTMLInputElement).value
+  if (!opened.value) open()
+  if (props.remote) props.remoteMethod?.(query.value)
+  nextTick(() => syncHighlight())
 }
 
 function onKeydown(event: KeyboardEvent) {
@@ -146,24 +250,38 @@ function onKeydown(event: KeyboardEvent) {
     event.preventDefault()
     const items = enabledOptions.value
     if (items.length) highlighted.value = items[items.length - 1].value
-  } else if (event.key === 'Enter' || event.key === ' ') {
+  } else if (event.key === 'Enter' || (event.key === ' ' && !props.filterable)) {
     event.preventDefault()
     if (!opened.value) open()
     else {
-      const item = allOptions.value.find((option) => option.value === highlighted.value)
+      const item = filteredOptions.value.find((option) => option.value === highlighted.value)
       if (item && !item.disabled) select(item)
-      else close()
+      else if (!props.multiple) close()
     }
+  } else if (event.key === 'Backspace' && props.multiple && props.filterable && !query.value && selectedValues.value.length) {
+    apply(selectedValues.value.slice(0, -1))
   } else if (event.key === 'Escape') {
     if (opened.value) {
       event.preventDefault()
       close()
     }
+  } else if (props.filterable && event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+    if (!opened.value) open()
   }
 }
 
 function onDocClick(event: MouseEvent) {
   if (!rootRef.value?.contains(event.target as Node)) close()
+}
+
+function onFocus(event: FocusEvent) {
+  emit('focus', event)
+}
+
+function onBlur(event: FocusEvent) {
+  if (rootRef.value?.contains(event.relatedTarget as Node)) return
+  emit('blur', event)
+  formItem?.validate('blur')
 }
 
 provide(selectContextKey, {
@@ -181,7 +299,11 @@ provide(selectContextKey, {
   unregister(value) {
     slotted.value = slotted.value.filter((item) => item.value !== value)
   },
-  select
+  select,
+  isSelected,
+  isOptionVisible(value) {
+    return filteredOptions.value.some((item) => item.value === value)
+  }
 })
 
 onMounted(() => document.addEventListener('mousedown', onDocClick))
@@ -199,38 +321,81 @@ watch(
   <div
     ref="rootRef"
     class="pt-select"
-    :class="[`pt-select--${size}`, { 'is-opened': opened, 'is-disabled': isDisabled }]"
+    :class="[
+      `pt-select--${size}`,
+      {
+        'is-opened': opened,
+        'is-disabled': isDisabled,
+        'is-multiple': multiple,
+        'is-filterable': filterable,
+        'is-error': validateState === 'error',
+        'is-success': validateState === 'success'
+      }
+    ]"
+    @mouseenter="hovering = true"
+    @mouseleave="hovering = false"
   >
     <input
       v-if="name"
       type="hidden"
       :name="name"
-      :value="modelValue == null ? '' : String(modelValue)"
+      :value="multiple ? selectedValues.join(',') : modelValue == null ? '' : String(modelValue)"
     />
     <div
       :id="inputId"
       class="pt-select__control"
       role="combobox"
-      :tabindex="isDisabled ? -1 : 0"
+      :tabindex="isDisabled || filterable ? -1 : 0"
       :aria-disabled="isDisabled || undefined"
       :aria-label="ariaLabel"
       :aria-expanded="opened"
       aria-haspopup="listbox"
       :aria-controls="listboxId"
       :aria-activedescendant="activeDescendant"
-      :aria-invalid="formItem?.error ? true : undefined"
-      :aria-describedby="formItem?.error ? formItem.errorId : undefined"
+      :aria-invalid="validateState === 'error' ? true : undefined"
+      :aria-describedby="validateState === 'error' ? formItem?.errorId : undefined"
+      :aria-multiselectable="multiple || undefined"
       @click="toggle"
       @keydown="onKeydown"
+      @focus="onFocus"
+      @blur="onBlur"
     >
-      <span v-if="displayLabel" class="pt-select__value">{{ displayLabel }}</span>
-      <span v-else class="pt-select__placeholder">{{ placeholder }}</span>
+      <div class="pt-select__tags" v-if="multiple && selectedOptions.length">
+        <pt-tag
+          v-for="item in visibleTags"
+          :key="String(item.value)"
+          size="small"
+          closable
+          @close="removeTag(item, $event)"
+        >
+          {{ item.label }}
+        </pt-tag>
+        <span v-if="hiddenTagCount" class="pt-select__count">+{{ hiddenTagCount }}</span>
+      </div>
+      <input
+        v-if="filterable"
+        ref="filterRef"
+        class="pt-select__input"
+        :value="query"
+        :placeholder="hasValue && !(multiple && opened) && !query ? '' : (!hasValue || opened ? placeholderText : '')"
+        :disabled="isDisabled"
+        :tabindex="isDisabled ? -1 : 0"
+        autocomplete="off"
+        @input="onFilterInput"
+        @focus="onFocus"
+        @blur="onBlur"
+        @keydown="onKeydown"
+        @click.stop="open"
+      />
+      <span v-else-if="displayLabel" class="pt-select__value">{{ displayLabel }}</span>
+      <span v-else-if="!multiple || !selectedOptions.length" class="pt-select__placeholder">{{ placeholderText }}</span>
       <span class="pt-select__suffix">
         <button
           v-if="showClear"
           type="button"
           class="pt-input__icon-btn"
-          aria-label="Clear"
+          data-pt="clear"
+          :aria-label="t('select.clear')"
           tabindex="-1"
           @click="clear"
         >
@@ -246,16 +411,24 @@ watch(
       class="pt-select__menu"
       role="listbox"
     >
-      <slot>
-        <pt-option
-          v-for="item in options"
-          :key="String(item.value)"
-          :label="item.label"
-          :value="item.value"
-          :disabled="item.disabled"
-        />
-      </slot>
-      <li v-if="!allOptions.length" class="pt-select__empty">No data</li>
+      <li v-if="loading" class="pt-select__empty pt-select__loading" role="status">
+        <pt-spinner />
+        <span>{{ loadingLabel }}</span>
+      </li>
+      <template v-else>
+        <slot>
+          <pt-option
+            v-for="item in (filterable || remote ? filteredOptions : options)"
+            :key="String(item.value)"
+            :label="item.label"
+            :value="item.value"
+            :disabled="item.disabled || (atLimit && !isSelected(item.value))"
+          />
+        </slot>
+        <li v-if="panelEmptyText && !loading && (filterable ? !filteredOptions.length : !allOptions.length || (query && !filteredOptions.length))" class="pt-select__empty">
+          {{ panelEmptyText }}
+        </li>
+      </template>
     </ul>
   </div>
 </template>

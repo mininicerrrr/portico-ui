@@ -6,6 +6,8 @@ export interface SelectOptionData {
   disabled?: boolean
 }
 
+export type SelectValue = string | number | boolean | null | Array<string | number | boolean>
+
 export interface SelectContext {
   selected: unknown
   highlighted: unknown
@@ -13,6 +15,8 @@ export interface SelectContext {
   register: (option: SelectOptionData) => void
   unregister: (value: SelectOptionData['value']) => void
   select: (option: SelectOptionData) => void
+  isSelected: (value: SelectOptionData['value']) => boolean
+  isOptionVisible: (value: SelectOptionData['value']) => boolean
 }
 
 export const selectContextKey: InjectionKey<SelectContext> = Symbol('ptSelect')

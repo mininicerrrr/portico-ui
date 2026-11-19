@@ -62,3 +62,52 @@ describe('PtTable', () => {
     expect(wrapper.get('th').attributes('scope')).toBe('col')
   })
 })
+
+describe('PtTable extras', () => {
+  it('sorts rows and emits sort-change', async () => {
+    const wrapper = mount(PtTable, {
+      props: {
+        columns: [
+          { prop: 'name', label: 'Name', sortable: true },
+          { prop: 'count', label: 'Count', sortable: true }
+        ],
+        data: [
+          { id: 1, name: 'Lin', count: 3 },
+          { id: 2, name: 'Ada', count: 9 },
+          { id: 3, name: 'Bo', count: 1 }
+        ]
+      }
+    })
+    await wrapper.findAll('th')[0].trigger('click')
+    expect(wrapper.emitted('sort-change')?.[0]).toEqual([{ prop: 'name', order: 'asc' }])
+    expect(wrapper.findAll('tbody tr').map((row) => row.find('td').text())).toEqual(['Ada', 'Bo', 'Lin'])
+    await wrapper.findAll('th')[0].trigger('click')
+    expect(wrapper.emitted('sort-change')?.[1]).toEqual([{ prop: 'name', order: 'desc' }])
+    expect(wrapper.findAll('tbody tr').map((row) => row.find('td').text())).toEqual(['Lin', 'Bo', 'Ada'])
+  })
+
+  it('shows a loading overlay without replacing the page', () => {
+    const wrapper = mount(PtTable, {
+      props: {
+        columns,
+        data: [{ id: 1, name: 'Ada', role: 'admin' }],
+        loading: true
+      }
+    })
+    expect(wrapper.find('.pt-table__loading').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Ada')
+  })
+
+  it('virtualizes only when the virtual prop is set', () => {
+    const data = Array.from({ length: 200 }, (_, i) => ({ id: i + 1, name: `Row ${i + 1}`, role: 'n' }))
+    const virtual = mount(PtTable, {
+      props: { columns, data, virtual: true, maxHeight: 200, rowHeight: 40 }
+    })
+    expect(virtual.findAll('tbody tr').length).toBeLessThan(200)
+    expect(virtual.text()).not.toMatch(/rendered/i)
+    const plain = mount(PtTable, {
+      props: { columns, data, maxHeight: 200 }
+    })
+    expect(plain.findAll('tbody tr').length).toBe(200)
+  })
+})

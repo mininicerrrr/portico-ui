@@ -55,3 +55,19 @@ const password = ref('secret')
 ## Methods
 
 Exposed on the component ref: `focus()`, `blur()`.
+
+## Validation states
+
+Error and success visuals come from the parent `PtFormItem`. `is-error` appears after a failed validation. `is-success` is shown **only** when `validate-status="success"` is set — never automatically after a passing validation.
+
+<DemoBox>
+  <pt-space direction="vertical" style="width: 100%">
+    <pt-form-item label="Error" validate-status="error" error="Name is required" label-width="64px">
+      <pt-input model-value="" placeholder="Required" />
+    </pt-form-item>
+    <pt-form-item label="Success" validate-status="success" label-width="64px">
+      <pt-input model-value="Ada" />
+    </pt-form-item>
+  </pt-space>
+</DemoBox>
+

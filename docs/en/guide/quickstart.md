@@ -65,3 +65,12 @@ async function onSubmit() {
   </pt-form>
 </template>
 ```
+
+## Locale
+
+The default locale is `zh-CN`. Pass `locale` or wrap a subtree with `PtConfigProvider`:
+
+```ts
+import PorticoUI, { en } from 'portico-ui'
+createApp(App).use(PorticoUI, { locale: en }).mount('#app')
+```

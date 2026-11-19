@@ -75,3 +75,31 @@ function mockLoad() {
 | 名称 | 说明 |
 | --- | --- |
 | default | 按钮内容 |
+
+## 图标插槽
+
+图标通过 `icon` 插槽传入，而不是为每种图标做变体。仅图标的按钮请同时提供 `aria-label`。
+
+<DemoBox title="icon 插槽">
+  <pt-space>
+    <pt-button type="primary">
+      <template #icon>+</template>
+      新建
+    </pt-button>
+    <pt-button aria-label="更多">⋯</pt-button>
+  </pt-space>
+</DemoBox>
+
+```vue
+<pt-button type="primary">
+  <template #icon>+</template>
+  新建
+</pt-button>
+```
+
+### Slots（补充）
+
+| 名称 | 说明 |
+| --- | --- |
+| icon | 可选图标，显示在文案左侧；加载中时由转圈代替 |
+

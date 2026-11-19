@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "types": [],
+    "paths": {
+      "vue": ["./node_modules/vue-dts-baseline/dist/vue.d.ts"],
+      "portico-ui": ["./src/index.ts"]
+    }
+  },
+  "include": ["src/**/*", "env.d.ts"],
+  "exclude": ["dist", "node_modules", "tests"]
+}

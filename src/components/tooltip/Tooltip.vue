@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { placementFixedStyle, type PtPlacement } from '../../utils/placement'
 
 export type TooltipEffect = 'dark' | 'light'
@@ -31,7 +31,6 @@ const props = withDefaults(defineProps<TooltipProps>(), {
 })
 
 const instanceKey = (tooltipSeqState.__ptTooltipSeq = (tooltipSeqState.__ptTooltipSeq ?? 0) + 1)
-void useId()
 const panelDomId = computed(() => `pt-tooltip-panel-${instanceKey}`)
 
 const triggerRef = ref<HTMLElement>()

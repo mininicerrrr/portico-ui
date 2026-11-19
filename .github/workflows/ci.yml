@@ -20,6 +20,16 @@ jobs:
       - run: npm test
       - run: npm run typecheck
       - run: npm run build
+      - name: Resolve Node 24 binary for consumer matrix
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: echo "NODE_24_BIN=$(command -v node)" >> "$GITHUB_ENV"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: node scripts/verify-npm-consumers.mjs
       - run: npm run docs:build
       - run: npm run docs:preview-smoke
       - name: Default vitepress preview base-path probe (expected limitation if assets 404)

@@ -1,18 +1,19 @@
 {
   "name": "portico-ui",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A compact Vue 3 component library for practical admin and form interfaces.",
   "license": "MIT",
   "author": "Portico UI Contributors",
   "type": "module",
-  "main": "./dist/portico-ui.umd.js",
+  "main": "./dist/portico-ui.cjs",
   "module": "./dist/portico-ui.es.js",
   "types": "./dist/index.d.ts",
+  "unpkg": "./dist/portico-ui.umd.js",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/portico-ui.es.js",
-      "require": "./dist/portico-ui.umd.js"
+      "require": "./dist/portico-ui.cjs"
     },
     "./style.css": "./dist/style.css",
     "./theme.css": "./dist/style.css"
@@ -53,7 +54,8 @@
     "docs:preview-vitepress-default": "node scripts/docs-vitepress-preview-default.mjs",
     "capture:v2-targeted": "V2_CAPTURE_ONLY=live-v2-buttons-pressed.png,live-v2-table-tooltip.png,live-v2-table-hover.png,live-v2-table-sorted.png,live-v2-input-async.png,live-v2-input-async-dark.png,live-v2-dark.png,live-v2-table-states.png node scripts/capture-v2-screenshots.mjs",
     "capture:final-evidence": "node scripts/capture-final-evidence.mjs",
-    "typecheck": "vue-tsc --noEmit -p tsconfig.app.json"
+    "typecheck": "vue-tsc --noEmit -p tsconfig.app.json",
+    "verify:consumers": "node scripts/verify-npm-consumers.mjs"
   },
   "devDependencies": {
     "@fontsource/noto-sans-sc": "^5.2.8",
@@ -67,7 +69,8 @@
     "vite-plugin-dts": "^4.5.4",
     "vitepress": "^1.6.4",
     "vitest": "^3.2.4",
-    "vue": "^3.5.22",
+    "vue": "^3.5.45",
+    "vue-dts-baseline": "npm:vue@3.4.38",
     "vue-tsc": "^3.1.0"
   }
 }

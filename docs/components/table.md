@@ -1,6 +1,6 @@
 # Table 表格
 
-用于展示行列数据。传入 `columns` 与 `data`，在没有数据时显示空状态。
+用于展示行列数据。传入 `columns` 与 `data`，在没有数据时显示空状态。表头为 Medium 字重与石色底（`--pt-bg-soft`）。当前行（`highlight-current-row`）为主色浅底加 3px 主色左轨。
 
 <script setup>
 import { ref } from 'vue'

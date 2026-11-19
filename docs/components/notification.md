@@ -1,6 +1,6 @@
 # Notification 通知
 
-命令式通知，API 与 `message` 相近：`notify()` / `notify.success()` 等。默认出现在右上角，层级 4500。
+命令式通知，API 与 `message` 相近：`notify()` / `notify.success()` 等。默认出现在右上角，层级 4500。面板圆角 4px，左侧有 3px 类型色条。
 
 ## 基础用法
 

@@ -1,6 +1,6 @@
 # InputNumber
 
-Numeric input with stepper buttons, min/max, step, and precision.
+Numeric input with stepper buttons, min/max, step, and precision. The control and steppers use a 2px radius and a shared 2px border; step buttons are 28px wide.
 
 ## Basic usage
 

@@ -1,6 +1,6 @@
 # Message 消息
 
-命令式消息提示，从页面顶部弹出，默认约 3 秒后关闭。
+命令式消息提示，从页面顶部弹出，默认约 3 秒后关闭。面板圆角 4px，左侧有 3px 类型色条。
 
 <script setup>
 import { message } from 'portico-ui'

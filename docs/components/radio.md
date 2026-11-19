@@ -1,6 +1,6 @@
 # Radio 单选框
 
-在一组选项中选择唯一值。
+在一组选项中选择唯一值。单选保持圆形（16×16、2px 描边、8px 内圆点），不是胶囊按钮。
 
 <script setup>
 import { ref } from 'vue'

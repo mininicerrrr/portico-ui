@@ -1,6 +1,6 @@
 # Notification
 
-Imperative toasts with an API similar to `message`: `notify()` / `notify.success()`, and so on. Default position is top-right, z-index 4500.
+Imperative toasts with an API similar to `message`: `notify()` / `notify.success()`, and so on. Default position is top-right, z-index 4500. The panel uses a 4px radius and a 3px left color bar by type.
 
 ## Basic usage
 

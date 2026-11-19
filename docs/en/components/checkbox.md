@@ -1,6 +1,6 @@
 # Checkbox
 
-Use alone or inside `PtCheckboxGroup` with an array model. `indeterminate` is a visual mixed state and does not change the bound value by itself.
+Use alone or inside `PtCheckboxGroup` with an array model. `indeterminate` is a visual mixed state and does not change the bound value by itself. The box is 16×16, with a 2px radius and 2px border; checked and indeterminate states fill primary with an inverse glyph.
 
 <script setup>
 import { ref } from 'vue'

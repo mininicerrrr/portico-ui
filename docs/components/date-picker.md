@@ -1,6 +1,6 @@
 # DatePicker 日期选择
 
-第一版仅支持 `date` 与 `daterange`。可用 `format` 控制展示，`valueFormat` 控制绑定值格式。
+第一版仅支持 `date` 与 `daterange`。可用 `format` 控制展示，`valueFormat` 控制绑定值格式。面板圆角 4px；日期格为 2px 圆角而不是胶囊。选中日为主色填充；范围用主色浅底，两端为 2px 方角。
 
 ## 基础用法
 

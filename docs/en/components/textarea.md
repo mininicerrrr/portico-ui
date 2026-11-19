@@ -1,6 +1,6 @@
 # Textarea
 
-Multi-line text input with autosize and an optional word limit. Validation states come from FormItem.
+Multi-line text input with autosize and an optional word limit. Validation states come from FormItem. Uses a 2px radius and 2px border, with no soft focus glow. Error adds a 3px left danger rail; success is a success border only.
 
 ## Basic usage
 

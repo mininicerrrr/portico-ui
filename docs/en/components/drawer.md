@@ -1,6 +1,6 @@
 # Drawer
 
-A panel that slides in from a screen edge. Accessibility matches Dialog: focus trap, Esc, `role="dialog"`, `aria-modal`, and focus return. Motion is 220ms.
+A panel that slides in from a screen edge. Accessibility matches Dialog: focus trap, Esc, `role="dialog"`, `aria-modal`, and focus return. Motion is 220ms. The panel uses a 4px radius, a 1px border, and a 4px top lintel in primary.
 
 ## Basic usage
 

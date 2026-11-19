@@ -1,6 +1,6 @@
 # Upload
 
-A custom `httpRequest` is the primary upload path; `action` is optional. Variants: button, list, and drag (`drag`).
+A custom `httpRequest` is the primary upload path; `action` is optional. Variants: button, list, and drag (`drag`). The drop zone uses a 2px dashed inkier border (`--pt-border-color`) and a 4px radius.
 
 ## Basic usage
 

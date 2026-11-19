@@ -1,6 +1,6 @@
 # Table
 
-Renders `columns` and `data`, and shows an empty state when there are no rows. Column slots receive `{ row, column, index, value }`.
+Renders `columns` and `data`, and shows an empty state when there are no rows. Column slots receive `{ row, column, index, value }`. Headers use Medium weight and a stone fill (`--pt-bg-soft`). The current row (`highlight-current-row`) uses a primary-soft fill and a 3px left primary rail.
 
 <script setup>
 import { ref } from 'vue'

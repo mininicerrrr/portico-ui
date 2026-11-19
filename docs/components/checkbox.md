@@ -1,6 +1,6 @@
 # Checkbox 复选框
 
-单独使用或通过 `PtCheckboxGroup` 绑定数组。
+单独使用或通过 `PtCheckboxGroup` 绑定数组。勾选框为 16×16、2px 圆角与 2px 描边；选中或半选时填充主色，勾为反向色。
 
 <script setup>
 import { ref } from 'vue'

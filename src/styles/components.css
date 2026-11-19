@@ -689,7 +689,7 @@
 /* Table */
 .pt-table { position: relative; width: 100%; border-radius: var(--pt-radius); }
 .pt-table__wrap { width: 100%; overflow: auto; }
-.pt-table__table { width: 100%; border-collapse: collapse; font-size: var(--pt-font-size); }
+.pt-table__table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: var(--pt-font-size); }
 .pt-table thead th { position: sticky; top: 0; z-index: 1; }
 .pt-table__th { display: inline-flex; align-items: center; gap: 4px; }
 .pt-table th.is-sortable { cursor: pointer; user-select: none; }
@@ -717,8 +717,8 @@
 .pt-table tbody tr:hover td { background: var(--pt-bg-row-hover); }
 .pt-table tbody tr.is-current td { background: var(--pt-bg-row-selected); }
 .pt-table tbody tr.is-selected td { background: var(--pt-bg-row-selected); }
-.pt-table.is-stripe tbody tr:nth-child(even) td { background: var(--pt-bg-softer); }
-.pt-table.is-stripe tbody tr:nth-child(even):hover td { background: var(--pt-bg-row-hover); }
+.pt-table.is-stripe tbody:not(.pt-table__body--loading) tr:nth-child(even) td { background: var(--pt-bg-softer); }
+.pt-table.is-stripe tbody:not(.pt-table__body--loading) tr:nth-child(even):hover td { background: var(--pt-bg-row-hover); }
 .pt-table.is-stripe tbody tr.is-current td,
 .pt-table.is-stripe tbody tr.is-selected td { background: var(--pt-bg-row-selected); }
 .pt-table.is-border th,
@@ -755,7 +755,7 @@
   gap: 8px;
   padding: 8px 14px;
   border-radius: var(--pt-radius-pill);
-  background: var(--pt-bg);
+  background: var(--pt-bg-overlay);
   border: var(--pt-border-width) solid var(--pt-border-light);
   box-shadow: var(--pt-shadow);
   color: var(--pt-text-regular);

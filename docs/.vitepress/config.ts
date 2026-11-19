@@ -152,11 +152,13 @@ export default defineConfig({
     search: { provider: 'local' }
   },
   vite: {
+    base: '/portico-ui/',
     resolve: {
       alias: {
         'portico-ui': resolve(import.meta.dirname, '../../src/index.ts')
       }
     },
-    server: { fs: { allow: [resolve(import.meta.dirname, '../..')] } }
+    server: { fs: { allow: [resolve(import.meta.dirname, '../..')] } },
+    preview: { port: 4173, strictPort: true }
   }
 })

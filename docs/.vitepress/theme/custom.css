@@ -41,3 +41,65 @@ body,
 }
 
 .VPHome .VPHero .name { letter-spacing: -0.02em; }
+
+/* Neutralize VitePress .vp-doc table rules inside component demos (display:block, zebra, cell grid). */
+.vp-doc .pt-demo .pt-table {
+  width: 100%;
+  margin: 0;
+}
+.vp-doc .pt-demo .pt-table__wrap {
+  display: block;
+  width: 100%;
+}
+.vp-doc .pt-demo table.pt-table__table {
+  display: table;
+  width: 100%;
+  margin: 0;
+  overflow: visible;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+.vp-doc .pt-demo .pt-table__table thead,
+.vp-doc .pt-demo .pt-table__table tbody {
+  display: table-row-group;
+}
+.vp-doc .pt-demo .pt-table__table tr {
+  display: table-row;
+  background: transparent !important;
+  border-top: none !important;
+  transition: none;
+}
+.vp-doc .pt-demo .pt-table__table tbody tr:nth-child(2n) {
+  background: transparent !important;
+}
+.vp-doc .pt-demo .pt-table__table th,
+.vp-doc .pt-demo .pt-table__table td {
+  display: table-cell;
+  border: none !important;
+  border-bottom: var(--pt-border-width) solid var(--pt-border-light) !important;
+  padding: 10px 12px !important;
+  font-size: var(--pt-font-size) !important;
+  font-weight: inherit !important;
+  color: inherit;
+  background-color: transparent !important;
+}
+.vp-doc .pt-demo .pt-table__table th {
+  color: var(--pt-text-color) !important;
+  font-weight: var(--pt-font-weight-medium) !important;
+  background-color: var(--pt-bg-soft) !important;
+}
+.vp-doc .pt-demo .pt-table__body--loading .pt-table__skeleton-row td {
+  background-color: transparent !important;
+}
+.vp-doc .pt-demo .v2-workbench,
+.vp-doc .pt-demo .v2-dark-surface {
+  width: 100%;
+  max-width: 864px;
+}
+.vp-doc .pt-demo .v2-dark-surface {
+  padding: 20px;
+  border-radius: 8px;
+  background: var(--pt-bg-page);
+  color: var(--pt-text-color);
+  border: var(--pt-border-width) solid var(--pt-border-light);
+}

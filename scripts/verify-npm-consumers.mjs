@@ -13,7 +13,8 @@ import { fileURLToPath } from 'node:url'
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const packDest = join(repoRoot, '.consumer-pack-test')
 const evidenceOut =
-  process.env.CONSUMER_MATRIX_OUT || '/opt/cursor/artifacts/portico-ui-consumer-matrix-evidence.json'
+  process.env.CONSUMER_MATRIX_OUT ||
+  join(repoRoot, '.consumer-pack-test', 'portico-ui-consumer-matrix-evidence.json')
 
 const STRICT_TSCONFIG = {
   compilerOptions: {
@@ -404,6 +405,7 @@ export default defineComponent({
       'patch-published-dts.mjs replaces rolled GlobalComponents/Directives imports with Record<> aliases only — no declare module vue index signature in published types',
     matrix
   }
+  await mkdir(dirname(evidenceOut), { recursive: true })
   await writeFile(evidenceOut, JSON.stringify(report, null, 2))
   console.log(JSON.stringify({ ok: failures.length === 0, failures: failures.length, evidenceOut, gitHead, tarballSha }, null, 2))
   await rm(packDest, { recursive: true, force: true })

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Pack dual tooltip harness (Vue 3.4.38)</title>
+    <link rel="stylesheet" href="/pack-assets/style.css" />
+    <style>
+      body { margin: 0; background: #fff; }
+      #app { padding: 80px 100px 200px; }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "vue": "https://cdn.jsdelivr.net/npm/vue@3.4.38/dist/vue.runtime.esm-browser.prod.js"
+        }
+      }
+    </script>
+    <script type="module">
+      import { createApp, h, defineComponent } from 'vue'
+      import { PtTooltip } from '/pack-assets/portico-ui.es.js'
+
+      const App = defineComponent({
+        setup() {
+          return () =>
+            h('div', [
+              h(
+                PtTooltip,
+                {
+                  content: 'Dual-instance A — pack consumer smoke',
+                  triggers: ['focus'],
+                  showAfter: 0,
+                  hideAfter: 0
+                },
+                { default: () => h('button', { id: 'ev-tip-a', type: 'button' }, 'Focus A') }
+              ),
+              h('span', { style: 'display:inline-block;width:32px' }),
+              h(
+                PtTooltip,
+                { content: 'Dual-instance B', triggers: ['focus'], showAfter: 0 },
+                { default: () => h('button', { id: 'ev-tip-b', type: 'button' }, 'Focus B') }
+              )
+            ])
+        }
+      })
+
+      createApp(App).mount('#app')
+    </script>
+  </body>
+</html>

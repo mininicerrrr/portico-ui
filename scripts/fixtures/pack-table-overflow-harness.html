@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Pack table overflow harness (Vue 3.4.38)</title>
+    <link rel="stylesheet" href="/pack-assets/style.css" />
+    <style>
+      html, body { margin: 0; min-height: 100%; background: #f6f8fb; }
+      #app {
+        box-sizing: border-box;
+        min-height: 100vh;
+        padding: 96px 120px 160px;
+        max-width: 720px;
+      }
+      #ev-table-overflow { margin-top: 8px; }
+      #ev-table-overflow .pt-table { table-layout: fixed; width: 300px; max-width: 100%; }
+    </style>
+  </head>
+  <body>
+    <button
+      type="button"
+      id="__a11y_tab_start"
+      style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0"
+    >
+      tab start
+    </button>
+    <div id="app"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "vue": "https://cdn.jsdelivr.net/npm/vue@3.4.38/dist/vue.runtime.esm-browser.prod.js"
+        }
+      }
+    </script>
+    <script type="module">
+      import { createApp, h, defineComponent } from 'vue'
+      import { PtTable } from '/pack-assets/portico-ui.es.js'
+
+      const LONG =
+        '品牌资产协作规范·供应链采购审批备注（pack 消费者 harness 溢出全文）——需在键盘焦点时展示完整 tooltip'
+
+      const App = defineComponent({
+        setup() {
+          return () =>
+            h('div', { id: 'ev-table-overflow' }, [
+              h('p', { style: 'margin:0 0 12px;color:#4a5568;font-size:14px' }, 'Tab → 溢出单元格'),
+              h(PtTable, {
+                columns: [{ prop: 'note', label: '备注', width: 88, showOverflowTooltip: true }],
+                data: [{ note: LONG }]
+              })
+            ])
+        }
+      })
+
+      createApp(App).mount('#app')
+    </script>
+  </body>
+</html>

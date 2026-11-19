@@ -20,11 +20,11 @@ const members = [
 ]
 /** 584px 内容宽 — 与捕获 manifest 对齐 */
 const columns584 = [
-  { prop: 'name', label: '成员', width: 148, sortable: true, showOverflowTooltip: true },
-  { prop: 'email', label: '邮箱', width: 152, showOverflowTooltip: true },
-  { prop: 'role', label: '角色', width: 88 },
-  { prop: 'status', label: '状态', width: 80 },
-  { prop: 'updated', label: '更新时间', width: 116, sortable: true, align: 'right' },
+  { prop: 'name', label: '成员', width: 140, sortable: true, showOverflowTooltip: true },
+  { prop: 'email', label: '邮箱', width: 148, showOverflowTooltip: true },
+  { prop: 'role', label: '角色', width: 86 },
+  { prop: 'status', label: '状态', width: 78 },
+  { prop: 'updated', label: '更新时间', width: 108, sortable: true, align: 'right' },
 ]
 const columnsHover = columns584.map((col) =>
   col.prop === 'email' ? { ...col, showOverflowTooltip: false } : col

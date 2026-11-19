@@ -20,6 +20,7 @@ jobs:
       - run: npm test
       - run: npm run typecheck
       - run: npm run build
+      - run: node scripts/verify-npm-consumers.mjs
       - run: npm run docs:build
       - run: npm run docs:preview-smoke
       - name: Default vitepress preview base-path probe (expected limitation if assets 404)

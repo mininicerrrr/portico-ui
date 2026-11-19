@@ -1,6 +1,14 @@
 # Changelog
 
-## 0.1.1 (unreleased)
+## 0.1.2 (unreleased)
+
+### Compatibility
+
+- **Node `require('portico-ui')`**: `exports.require` now resolves to `dist/portico-ui.cjs` (`.cjs` extension). With `"type": "module"`, `.js` UMD was interpreted as ESM under Node and `require` returned an empty module (`undefined.defineComponent` / missing exports).
+- **TypeScript consumers**: augment `vue` `GlobalComponents` with an index signature before `dts` emit so strict `vue-tsc` / `tsc` (no `skipLibCheck`) does not TS2344 on published `dist/index.d.ts`.
+- `unpkg` points at the browser UMD build; `main` is the CJS entry for tooling that reads `main`.
+
+## 0.1.1
 
 ### Accessibility
 

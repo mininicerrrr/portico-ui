@@ -408,7 +408,7 @@ export default defineComponent({
   await mkdir(dirname(evidenceOut), { recursive: true })
   await writeFile(evidenceOut, JSON.stringify(report, null, 2))
   console.log(JSON.stringify({ ok: failures.length === 0, failures: failures.length, evidenceOut, gitHead, tarballSha }, null, 2))
-  await rm(packDest, { recursive: true, force: true })
+  await rm(tgzPath, { force: true })
   if (failures.length) process.exit(1)
 }
 

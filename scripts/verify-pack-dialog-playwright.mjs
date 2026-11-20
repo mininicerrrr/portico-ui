@@ -120,14 +120,20 @@ export default defineConfig({
       throw new Error('packed style missing dialog hidden rule')
     }
 
-    viteProc = spawn('npx', ['vite', '--host', '127.0.0.1', '--port', String(port)], {
+    try {
+      execSync(`lsof -ti:${port} | xargs -r kill -9`, { stdio: 'ignore' })
+    } catch {
+      /* port free */
+    }
+    sh('npx vite build', dir)
+    viteProc = spawn('npx', ['vite', 'preview', '--host', '127.0.0.1', '--port', String(port)], {
       cwd: dir,
       stdio: 'ignore',
       shell: true
     })
     const base = `http://127.0.0.1:${port}`
     let ready = false
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 120; i++) {
       try {
         const res = await fetch(base)
         if (res.ok) {

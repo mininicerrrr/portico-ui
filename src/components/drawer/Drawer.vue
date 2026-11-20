@@ -65,10 +65,10 @@ function onOverlay() {
 }
 
 function onKeydown(event: KeyboardEvent) {
-  if (event.key === 'Escape' && props.closeOnPressEscape) {
-    event.stopPropagation()
-    close()
-  }
+  if (event.key !== 'Escape' || !props.closeOnPressEscape || !props.modelValue) return
+  if (event.defaultPrevented) return
+  event.stopPropagation()
+  close()
 }
 
 function teardown() {

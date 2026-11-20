@@ -634,6 +634,10 @@
   inset: 0;
   z-index: var(--pt-z-dialog);
 }
+.pt-drawer:not(.is-visible) {
+  visibility: hidden;
+  pointer-events: none;
+}
 .pt-drawer__overlay {
   position: absolute;
   inset: 0;

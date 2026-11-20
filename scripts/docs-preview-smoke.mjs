@@ -83,8 +83,64 @@ async function main() {
         hasOverflowFocusableCell: Boolean(focusableCell)
       }
     })
+
+    const dialogPage = await browser.newPage()
+    await dialogPage.goto(`${BASE}/components/dialog`, { waitUntil: 'networkidle', timeout: 60000 })
+    await dialogPage.getByRole('button', { name: '打开对话框' }).click()
+    await dialogPage.waitForSelector('.pt-dialog.is-visible', { timeout: 5000 })
+    await dialogPage.locator('.pt-dialog__close').click()
+    await dialogPage.waitForFunction(
+      () => {
+        const root = document.querySelector('.pt-dialog')
+        if (!root) return true
+        return !root.classList.contains('is-visible') && getComputedStyle(root).pointerEvents === 'none'
+      },
+      undefined,
+      { timeout: 5000 }
+    )
+    const focusOnOpenAfterHeaderClose = await dialogPage.evaluate(() => {
+      const open = Array.from(document.querySelectorAll('button')).find((b) => b.textContent?.includes('打开对话框'))
+      return Boolean(open && document.activeElement === open)
+    })
+    await dialogPage.getByRole('button', { name: '打开对话框' }).click()
+    await dialogPage.waitForSelector('.pt-dialog.is-visible', { timeout: 5000 })
+    await dialogPage.keyboard.press('Escape')
+    await dialogPage.waitForFunction(
+      () => !document.querySelector('.pt-dialog.is-visible'),
+      undefined,
+      { timeout: 5000 }
+    )
+    const focusOnOpenAfterEscape = await dialogPage.evaluate(() => {
+      const open = Array.from(document.querySelectorAll('button')).find((b) => b.textContent?.includes('打开对话框'))
+      return open && document.activeElement === open
+    })
+    await dialogPage.getByRole('button', { name: '打开对话框' }).click()
+    await dialogPage.waitForSelector('.pt-dialog.is-visible', { timeout: 5000 })
+    const panel = await dialogPage.locator('.pt-dialog__panel').boundingBox()
+    await dialogPage.mouse.click(panel.x - 8, panel.y + (panel.height ?? 0) / 2)
+    await dialogPage.waitForFunction(
+      () => !document.querySelector('.pt-dialog.is-visible'),
+      undefined,
+      { timeout: 5000 }
+    )
+    const focusOnOpenAfterOverlay = await dialogPage.evaluate(() => {
+      const open = Array.from(document.querySelectorAll('button')).find((b) => b.textContent?.includes('打开对话框'))
+      return open && document.activeElement === open
+    })
+    const dialogSmoke = {
+      ok: focusOnOpenAfterHeaderClose && focusOnOpenAfterEscape && focusOnOpenAfterOverlay,
+      url: `${BASE}/components/dialog`,
+      paths: ['header-close', 'escape', 'overlay'],
+      focusReturn: {
+        afterHeaderClose: focusOnOpenAfterHeaderClose,
+        afterEscape: focusOnOpenAfterEscape,
+        afterOverlay: focusOnOpenAfterOverlay
+      }
+    }
+
     await browser.close()
-    const staticServerOk = results.every((r) => r.ok) && tableLayout.tableDisplay === 'table'
+    const staticServerOk =
+      results.every((r) => r.ok) && tableLayout.tableDisplay === 'table' && dialogSmoke.ok
     const payload = {
       ok: staticServerOk,
       runner: 'static-docs-server + Playwright',
@@ -92,7 +148,8 @@ async function main() {
       vitepressDefaultLimitation: 'Run npm run docs:preview-vitepress-default for default vitepress preview base-path check',
       results,
       tableLayout,
-      a11ySample: a11y
+      a11ySample: a11y,
+      dialogSmoke
     }
     console.log(JSON.stringify(payload, null, 2))
     if (!staticServerOk) process.exit(1)

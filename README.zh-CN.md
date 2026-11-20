@@ -4,6 +4,14 @@
 
 [English](./README.md) | 简体中文
 
+## 访问地址
+
+| 资源 | 地址 |
+| --- | --- |
+| 文档站（GitHub Pages） | [https://mininicerrrr.github.io/portico-ui/](https://mininicerrrr.github.io/portico-ui/) |
+| npm 包 | [https://www.npmjs.com/package/portico-ui](https://www.npmjs.com/package/portico-ui) |
+| 相关示例应用 | [https://mininicerrrr.github.io/portico-admin/](https://mininicerrrr.github.io/portico-admin/) |
+
 ## 特性
 
 - Vue 3 + Vite + TypeScript，库模式构建

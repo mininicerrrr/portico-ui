@@ -4,6 +4,14 @@ A compact Vue 3 component library for practical admin and form interfaces, in th
 
 English | [简体中文](./README.zh-CN.md)
 
+## Access
+
+| Resource | URL |
+| --- | --- |
+| Documentation (GitHub Pages) | [https://mininicerrrr.github.io/portico-ui/](https://mininicerrrr.github.io/portico-ui/) |
+| npm package | [https://www.npmjs.com/package/portico-ui](https://www.npmjs.com/package/portico-ui) |
+| Related demo app | [https://mininicerrrr.github.io/portico-admin/](https://mininicerrrr.github.io/portico-admin/) |
+
 ## Highlights
 
 - Vue 3 + Vite + TypeScript, built in library mode

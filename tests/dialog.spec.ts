@@ -27,6 +27,23 @@ describe('PtDialog', () => {
     wrapper.unmount()
   })
 
+  it('hides and disables pointer events on the root after close', async () => {
+    const wrapper = mount(PtDialog, {
+      props: { modelValue: true, title: 'Title' },
+      attachTo: document.body
+    })
+    await nextTick()
+    const root = document.body.querySelector('.pt-dialog') as HTMLElement
+    expect(root.classList.contains('is-visible')).toBe(true)
+
+    await wrapper.setProps({ modelValue: false })
+    await nextTick()
+    expect(root.classList.contains('is-visible')).toBe(false)
+    expect(getComputedStyle(root).pointerEvents).toBe('none')
+    expect(getComputedStyle(root).visibility).toBe('hidden')
+    wrapper.unmount()
+  })
+
   it('closes on Escape and emits update:modelValue', async () => {
     const wrapper = mount(PtDialog, {
       props: { modelValue: true, title: 'Title' },
@@ -34,10 +51,44 @@ describe('PtDialog', () => {
       attachTo: document.body
     })
     await nextTick()
-    const root = document.body.querySelector('.pt-dialog') as HTMLElement
-    root.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
     await nextTick()
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([false])
+    wrapper.unmount()
+  })
+
+  it('does not close on Escape when closeOnPressEscape is false', async () => {
+    const wrapper = mount(PtDialog, {
+      props: { modelValue: true, title: 'Title', closeOnPressEscape: false },
+      attachTo: document.body
+    })
+    await nextTick()
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await nextTick()
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it('closes when the overlay is clicked and respects closeOnClickModal', async () => {
+    const wrapper = mount(PtDialog, {
+      props: {
+        modelValue: true,
+        title: 'Title',
+        'onUpdate:modelValue': (v: boolean) => wrapper.setProps({ modelValue: v })
+      },
+      attachTo: document.body
+    })
+    await nextTick()
+    ;(document.body.querySelector('.pt-dialog__overlay') as HTMLElement).click()
+    await nextTick()
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([false])
+    expect(document.body.querySelector('.pt-dialog.is-visible')).toBeNull()
+
+    await wrapper.setProps({ modelValue: true, closeOnClickModal: false })
+    await nextTick()
+    ;(document.body.querySelector('.pt-dialog__overlay') as HTMLElement).click()
+    await nextTick()
+    expect(document.body.querySelector('.pt-dialog.is-visible')).toBeTruthy()
     wrapper.unmount()
   })
 
@@ -53,7 +104,69 @@ describe('PtDialog', () => {
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([false])
     wrapper.unmount()
   })
-})
+
+  async function mountControlledDialog(trigger: HTMLButtonElement) {
+    const wrapper = mount(PtDialog, {
+      props: {
+        modelValue: false,
+        title: '确认操作',
+        'onUpdate:modelValue': (v: boolean) => wrapper.setProps({ modelValue: v })
+      },
+      attachTo: document.body
+    })
+    trigger.focus()
+    await wrapper.setProps({ modelValue: true })
+    await nextTick()
+    expect(document.body.querySelector('.pt-dialog.is-visible')).toBeTruthy()
+    return wrapper
+  }
+
+  it.each([
+    ['Escape', async () => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))],
+    [
+      'header close',
+      async () => {
+        ;(document.body.querySelector('.pt-dialog__close') as HTMLButtonElement).click()
+      }
+    ],
+    [
+      'overlay',
+      async () => {
+        ;(document.body.querySelector('.pt-dialog__overlay') as HTMLElement).click()
+      }
+    ]
+  ])('syncs v-model, dismisses UI, and returns focus after %s', async (_label, dismiss) => {
+    const trigger = document.createElement('button')
+    trigger.textContent = '打开对话框'
+    document.body.appendChild(trigger)
+    const wrapper = await mountControlledDialog(trigger)
+
+    await dismiss()
+    await nextTick()
+    expect(document.body.querySelector('.pt-dialog.is-visible')).toBeNull()
+    expect(document.activeElement).toBe(trigger)
+    trigger.remove()
+    wrapper.unmount()
+  })
+
+  it('reopens after closing with the header close button when v-model updates', async () => {
+    const wrapper = mount(PtDialog, {
+      props: {
+        modelValue: true,
+        title: '确认操作',
+        'onUpdate:modelValue': (v: boolean) => wrapper.setProps({ modelValue: v })
+      },
+      attachTo: document.body
+    })
+    await nextTick()
+    ;(document.body.querySelector('.pt-dialog__close') as HTMLButtonElement).click()
+    await nextTick()
+    expect(document.body.querySelector('.pt-dialog.is-visible')).toBeNull()
+    await wrapper.setProps({ modelValue: true })
+    await nextTick()
+    expect(document.body.querySelector('.pt-dialog.is-visible')).toBeTruthy()
+    wrapper.unmount()
+  })
 
   it('maps size to official widths and lets width override', async () => {
     const small = mount(PtDialog, {
@@ -80,3 +193,4 @@ describe('PtDialog', () => {
     expect((document.body.querySelector('.pt-dialog__panel') as HTMLElement).style.width).toBe('720px')
     custom.unmount()
   })
+})

@@ -493,6 +493,10 @@
   justify-content: center;
   padding: 24px;
 }
+.pt-dialog:not(.is-visible) {
+  visibility: hidden;
+  pointer-events: none;
+}
 .pt-dialog__overlay {
   position: absolute;
   inset: 0;

@@ -425,8 +425,24 @@ export default defineComponent({
   )
 
   const failures = matrix.filter((m) => m.ok === false)
+  const ok = failures.length === 0
+  if (process.env.EXPECT_TARBALL_SHA256 && process.env.EXPECT_TARBALL_SHA256 !== tarballSha) {
+    throw new Error(
+      `packed tarball sha256 mismatch: expected ${process.env.EXPECT_TARBALL_SHA256}, got ${tarballSha}`
+    )
+  }
+  if (process.env.EXPECT_GIT_HEAD && process.env.EXPECT_GIT_HEAD !== gitHead) {
+    throw new Error(`git head mismatch: expected ${process.env.EXPECT_GIT_HEAD}, got ${gitHead}`)
+  }
+  if (process.env.EXPECT_PACKED_VERSION && process.env.EXPECT_PACKED_VERSION !== packedVersion) {
+    throw new Error(
+      `packed version mismatch: expected ${process.env.EXPECT_PACKED_VERSION}, got ${packedVersion}`
+    )
+  }
   const report = {
     capturedAt: new Date().toISOString(),
+    ok,
+    failures: failures.length,
     gitHead,
     packedVersion,
     tarballPath: tgzPath,

@@ -1,6 +1,12 @@
 # Changelog
 
-## 0.1.2 (unreleased)
+## 0.1.3 (unreleased)
+
+### Fixed
+
+- **Dialog / Drawer (UI-DIALOG-ESC-001)**: after dismiss, hidden roots no longer intercept clicks (`visibility: hidden` + `pointer-events: none` on `:not(.is-visible)`). `Esc` handled on the teleported root (bubble), respecting `defaultPrevented` and `closeOnPressEscape` / `closeOnClickModal`.
+
+## 0.1.2
 
 ### Compatibility
 

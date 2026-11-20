@@ -62,40 +62,46 @@ async function main() {
     await writeFile(
       join(dir, 'main.js'),
       `import { createApp, ref, h } from 'vue'
-import { PtDialog, PtButton } from 'portico-ui'
-import 'portico-ui/style.css'
+import PorticoUI, { PtDialog, PtButton } from 'portico-ui/dist/portico-ui.es.js'
+import 'portico-ui/dist/style.css'
 
 const visible = ref(false)
-createApp({
+const app = createApp({
   setup() {
     return () => h('div', [
-      h(PtButton, { type: 'primary', id: 'open-dialog', onClick: () => (visible.value = true) }, () => '打开对话框'),
+      h(PtButton, { type: 'primary', nativeType: 'button', class: 'open-dialog', onClick: () => (visible.value = true) }, () => 'Open dialog'),
       h(
         PtDialog,
         {
           modelValue: visible.value,
           'onUpdate:modelValue': (v) => (visible.value = v),
-          title: '确认操作'
+          title: 'Confirm'
         },
         {
-          default: () => h('p', '内容'),
+          default: () => h('p', 'Body'),
           footer: () =>
             h('div', [
-              h(PtButton, { onClick: () => (visible.value = false) }, () => '取消'),
-              h(PtButton, { type: 'primary', id: 'confirm', onClick: () => (visible.value = false) }, () => '确定')
+              h(PtButton, { onClick: () => (visible.value = false) }, () => 'Cancel'),
+              h(PtButton, { type: 'primary', nativeType: 'button', class: 'dlg-confirm', onClick: () => (visible.value = false) }, () => 'OK')
             ])
         }
       )
     ])
   }
-}).mount('#app')
+})
+app.use(PorticoUI)
+app.mount('#app')
 `
     )
     await writeFile(
       join(dir, 'vite.config.js'),
       `import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-export default defineConfig({ plugins: [vue()], server: { port: ${port}, strictPort: true } })
+export default defineConfig({
+  plugins: [vue()],
+  server: { port: ${port}, strictPort: true },
+  resolve: { dedupe: ['vue'] }
+})
 `
     )
     sh('npm install', dir)
@@ -105,9 +111,12 @@ export default defineConfig({ plugins: [vue()], server: { port: ${port}, strictP
 
     viteProc = spawn('npx', ['vite', '--host', '127.0.0.1', '--port', String(port)], {
       cwd: dir,
-      stdio: 'ignore',
+      stdio: ['ignore', 'pipe', 'pipe'],
       shell: true
     })
+    const viteLog = []
+    viteProc.stdout?.on('data', (d) => viteLog.push(String(d)))
+    viteProc.stderr?.on('data', (d) => viteLog.push(String(d)))
     const base = `http://127.0.0.1:${port}`
     for (let i = 0; i < 40; i++) {
       try {
@@ -122,10 +131,14 @@ export default defineConfig({ plugins: [vue()], server: { port: ${port}, strictP
     const { chromium } = await import('playwright')
     const browser = await chromium.launch()
     const page = await browser.newPage()
+    const consoleLog = []
+    page.on('console', (msg) => consoleLog.push(msg.text()))
+    page.on('pageerror', (err) => consoleLog.push(`pageerror: ${err.message}`))
     await page.goto(base, { waitUntil: 'networkidle', timeout: 60000 })
+    await page.waitForSelector('button.pt-button', { timeout: 60000 })
 
     const runDismiss = async (label, action) => {
-      await page.locator('#open-dialog').click()
+      await page.getByText('Open dialog', { exact: true }).click()
       await page.waitForSelector('.pt-dialog.is-visible', { timeout: 5000 })
       await action()
       await page.waitForFunction(
@@ -137,7 +150,10 @@ export default defineConfig({ plugins: [vue()], server: { port: ${port}, strictP
         undefined,
         { timeout: 5000 }
       )
-      const focusOk = await page.evaluate(() => document.activeElement?.id === 'open-dialog')
+      const focusOk = await page.evaluate(() => {
+        const open = document.querySelector('button.open-dialog')
+        return Boolean(open && document.activeElement === open)
+      })
       return { label, focusReturnedToOpen: focusOk }
     }
 
@@ -149,7 +165,7 @@ export default defineConfig({ plugins: [vue()], server: { port: ${port}, strictP
     )
     paths.push(
       await runDismiss('escape', async () => {
-        await page.locator('#confirm').focus()
+        await page.locator('button.dlg-confirm').focus()
         await page.keyboard.press('Escape')
       })
     )
@@ -175,6 +191,8 @@ export default defineConfig({ plugins: [vue()], server: { port: ${port}, strictP
       vuePeerUsed: '3.4.38',
       styleCssHasDialogHiddenRule: hasHiddenRule,
       dismissPaths: paths,
+      browserConsole: consoleLog.slice(-40),
+      viteLog: viteLog.slice(-20),
       ok
     }
     mkdirSync(dirname(outPath), { recursive: true })
@@ -189,5 +207,8 @@ export default defineConfig({ plugins: [vue()], server: { port: ${port}, strictP
 
 main().catch((err) => {
   console.error(err)
+  if (err?.message?.includes('Timeout')) {
+    console.error('Hint: check pack vite harness — button.pt-button did not mount')
+  }
   process.exit(1)
 })

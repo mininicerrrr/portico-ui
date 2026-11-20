@@ -93,6 +93,7 @@ function assertConsistency(report) {
   const errors = []
   if (c.packSha256 !== c.consumerTarballSha256) errors.push('pack vs consumer tarball sha256')
   if (c.packSha256 !== c.packDialogTarballSha256) errors.push('pack vs pack-dialog tarball sha256')
+  if (report.packInstalledDialogSmoke?.ok !== true) errors.push('pack dialog dismiss paths failed')
   if (c.gitHead !== c.consumerGitHead) errors.push('gitHead vs consumer evidence')
   if (c.gitHead !== c.packDialogGitHead) errors.push('gitHead vs pack-dialog evidence')
   if (c.packedVersion !== c.consumerPackedVersion) errors.push('version vs consumer evidence')
@@ -131,8 +132,8 @@ function main() {
 
   const packDialogOut = join(outDir, 'pack-dialog-browser-evidence.json')
   runStep(
-    'pack-dialog-browser',
-    `PACK_TARBALL=${join(outDir, pack1.tgzName)} EXPECT_TARBALL_SHA256=${pack1.sha256} EXPECT_GIT_HEAD=${head} PACK_DIALOG_EVIDENCE_OUT=${packDialogOut} node scripts/verify-pack-dialog-browser.mjs`,
+    'pack-dialog-runtime',
+    `PACK_TARBALL=${join(outDir, pack1.tgzName)} EXPECT_TARBALL_SHA256=${pack1.sha256} EXPECT_GIT_HEAD=${head} PACK_DIALOG_EVIDENCE_OUT=${packDialogOut} node scripts/verify-pack-dialog-runtime.mjs`,
     log
   )
   const packDialog = JSON.parse(readFileSync(packDialogOut, 'utf8'))
@@ -173,7 +174,7 @@ function main() {
       notPackInstalled: true,
       evidence: smoke.dialogSmoke
     },
-    packInstalledDialogBrowserSmoke: packDialog,
+    packInstalledDialogSmoke: packDialog,
     consumerMatrixEvidenceFile: consumerOut,
     consumerMatrixSummary: {
       ok: consumer.ok,

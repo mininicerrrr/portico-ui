@@ -98,6 +98,10 @@ async function main() {
       undefined,
       { timeout: 5000 }
     )
+    const focusOnOpenAfterHeaderClose = await dialogPage.evaluate(() => {
+      const open = Array.from(document.querySelectorAll('button')).find((b) => b.textContent?.includes('打开对话框'))
+      return Boolean(open && document.activeElement === open)
+    })
     await dialogPage.getByRole('button', { name: '打开对话框' }).click()
     await dialogPage.waitForSelector('.pt-dialog.is-visible', { timeout: 5000 })
     await dialogPage.keyboard.press('Escape')
@@ -106,7 +110,7 @@ async function main() {
       undefined,
       { timeout: 5000 }
     )
-    let focusOnOpenAfterEscape = await dialogPage.evaluate(() => {
+    const focusOnOpenAfterEscape = await dialogPage.evaluate(() => {
       const open = Array.from(document.querySelectorAll('button')).find((b) => b.textContent?.includes('打开对话框'))
       return open && document.activeElement === open
     })
@@ -124,10 +128,14 @@ async function main() {
       return open && document.activeElement === open
     })
     const dialogSmoke = {
-      ok: focusOnOpenAfterEscape && focusOnOpenAfterOverlay,
+      ok: focusOnOpenAfterHeaderClose && focusOnOpenAfterEscape && focusOnOpenAfterOverlay,
       url: `${BASE}/components/dialog`,
       paths: ['header-close', 'escape', 'overlay'],
-      focusReturn: { afterEscape: focusOnOpenAfterEscape, afterOverlay: focusOnOpenAfterOverlay }
+      focusReturn: {
+        afterHeaderClose: focusOnOpenAfterHeaderClose,
+        afterEscape: focusOnOpenAfterEscape,
+        afterOverlay: focusOnOpenAfterOverlay
+      }
     }
 
     await browser.close()

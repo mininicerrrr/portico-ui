@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { nextTick } from 'vue'
+import { defineComponent, h, nextTick } from 'vue'
 import { PtDialog } from '../src/components/dialog'
 
 describe('PtDialog', () => {
@@ -44,29 +44,112 @@ describe('PtDialog', () => {
     wrapper.unmount()
   })
 
-  it('closes on Escape and emits update:modelValue', async () => {
+  function escapeFromFocusedInDialog(wrapper: ReturnType<typeof mount>) {
+    const panel = document.body.querySelector('.pt-dialog__panel') as HTMLElement
+    const footerBtn = panel.querySelector('.pt-dialog__footer button') as HTMLButtonElement | null
+    const target = footerBtn || panel
+    target.focus()
+    target.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    return wrapper
+  }
+
+  it('closes on Escape from a focused control inside the panel', async () => {
     const wrapper = mount(PtDialog, {
-      props: { modelValue: true, title: 'Title' },
-      slots: { default: 'Content' },
+      props: {
+        modelValue: true,
+        title: 'Title',
+        'onUpdate:modelValue': (v: boolean) => wrapper.setProps({ modelValue: v })
+      },
+      slots: {
+        default: 'Content',
+        footer: '<button type="button">确定</button>'
+      },
       attachTo: document.body
     })
     await nextTick()
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    escapeFromFocusedInDialog(wrapper)
     await nextTick()
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([false])
+    expect(document.body.querySelector('.pt-dialog.is-visible')).toBeNull()
     wrapper.unmount()
   })
 
   it('does not close on Escape when closeOnPressEscape is false', async () => {
     const wrapper = mount(PtDialog, {
       props: { modelValue: true, title: 'Title', closeOnPressEscape: false },
+      slots: { footer: '<button type="button">确定</button>' },
       attachTo: document.body
     })
     await nextTick()
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    escapeFromFocusedInDialog(wrapper)
     await nextTick()
     expect(wrapper.emitted('update:modelValue')).toBeUndefined()
     wrapper.unmount()
+  })
+
+  it('does not close when a slot control stops Escape propagation', async () => {
+    const wrapper = mount(PtDialog, {
+      props: {
+        modelValue: true,
+        title: 'Title',
+        'onUpdate:modelValue': (v: boolean) => wrapper.setProps({ modelValue: v })
+      },
+      slots: {
+        default: defineComponent({
+          setup() {
+            return () =>
+              h('input', {
+                class: 'inner-field',
+                onKeydown: (event: KeyboardEvent) => {
+                  if (event.key === 'Escape') event.stopPropagation()
+                }
+              })
+          }
+        })
+      },
+      attachTo: document.body
+    })
+    await nextTick()
+    const field = document.body.querySelector('.inner-field') as HTMLInputElement
+    field.focus()
+    field.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }))
+    await nextTick()
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+    expect(document.body.querySelector('.pt-dialog.is-visible')).toBeTruthy()
+    wrapper.unmount()
+  })
+
+  it('closes only the top dialog when two instances are open', async () => {
+    const first = mount(PtDialog, {
+      props: {
+        modelValue: true,
+        title: '下层',
+        'onUpdate:modelValue': (v: boolean) => first.setProps({ modelValue: v })
+      },
+      attachTo: document.body
+    })
+    const second = mount(PtDialog, {
+      props: {
+        modelValue: true,
+        title: '上层',
+        'onUpdate:modelValue': (v: boolean) => second.setProps({ modelValue: v })
+      },
+      attachTo: document.body
+    })
+    await nextTick()
+    expect(document.body.querySelectorAll('.pt-dialog.is-visible').length).toBe(2)
+
+    const topClose = document.body.querySelectorAll('.pt-dialog__close')[1] as HTMLButtonElement
+    topClose.focus()
+    topClose.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await nextTick()
+
+    expect(second.emitted('update:modelValue')?.[0]).toEqual([false])
+    expect(first.emitted('update:modelValue')).toBeUndefined()
+    expect(first.props('modelValue')).toBe(true)
+    expect(document.body.querySelectorAll('.pt-dialog.is-visible').length).toBe(1)
+    first.unmount()
+    second.unmount()
   })
 
   it('closes when the overlay is clicked and respects closeOnClickModal', async () => {
@@ -112,6 +195,10 @@ describe('PtDialog', () => {
         title: '确认操作',
         'onUpdate:modelValue': (v: boolean) => wrapper.setProps({ modelValue: v })
       },
+      slots: {
+        footer:
+          '<button type="button" class="dlg-cancel">取消</button><button type="button" class="dlg-ok">确定</button>'
+      },
       attachTo: document.body
     })
     trigger.focus()
@@ -122,7 +209,14 @@ describe('PtDialog', () => {
   }
 
   it.each([
-    ['Escape', async () => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))],
+    [
+      'Escape',
+      async () => {
+        const footer = document.body.querySelector('.pt-dialog__footer button') as HTMLButtonElement
+        footer.focus()
+        footer.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+      }
+    ],
     [
       'header close',
       async () => {

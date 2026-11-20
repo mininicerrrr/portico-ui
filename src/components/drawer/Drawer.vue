@@ -64,15 +64,14 @@ function onOverlay() {
   if (props.closeOnClickModal) close()
 }
 
-function onEscapeKeydown(event: KeyboardEvent) {
+function onKeydown(event: KeyboardEvent) {
   if (event.key !== 'Escape' || !props.closeOnPressEscape || !props.modelValue) return
-  event.preventDefault()
+  if (event.defaultPrevented) return
   event.stopPropagation()
   close()
 }
 
 function teardown() {
-  window.removeEventListener('keydown', onEscapeKeydown, true)
   releaseFocus?.()
   releaseFocus = undefined
   releaseScroll?.()
@@ -97,7 +96,6 @@ watch(
         const focusable = getFocusable(panel)
         ;(focusable[0] || panel).focus()
       }
-      window.addEventListener('keydown', onEscapeKeydown, true)
       emit('opened')
     } else if (visible.value) {
       visible.value = false
@@ -117,6 +115,7 @@ onBeforeUnmount(() => teardown())
       v-if="rendered"
       class="pt-drawer"
       :class="[`pt-drawer--${placement}`, { 'is-visible': visible }]"
+      @keydown="onKeydown"
     >
       <div class="pt-drawer__overlay" @click="onOverlay" />
       <div

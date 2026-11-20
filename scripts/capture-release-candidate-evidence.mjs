@@ -130,7 +130,7 @@ function main() {
   )
   const consumer = JSON.parse(readFileSync(consumerOut, 'utf8'))
 
-  const packDialogOut = join(outDir, 'pack-dialog-browser-evidence.json')
+  const packDialogOut = join(outDir, 'pack-dialog-runtime-evidence.json')
   runStep(
     'pack-dialog-runtime',
     `PACK_TARBALL=${join(outDir, pack1.tgzName)} EXPECT_TARBALL_SHA256=${pack1.sha256} EXPECT_GIT_HEAD=${head} PACK_DIALOG_EVIDENCE_OUT=${packDialogOut} node scripts/verify-pack-dialog-runtime.mjs`,
